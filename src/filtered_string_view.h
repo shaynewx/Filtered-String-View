@@ -12,12 +12,13 @@ namespace fsv {
 	                                                 // char&参数并返回bool的函数的可调用对象
 	class filtered_string_view {
 	 public:
-		static bool default_predicate(const char&); // 默认的 静态成员 谓词函数，总是返回 true
+		static auto default_predicate(const char&) -> bool; // 默认的 静态成员 谓词函数，总是返回 true
 		// 构造函数
-		filtered_string_view(); // 2.4.1
+		filtered_string_view(); // 2.4.1 默认构造函数
+		filtered_string_view(const std::string& s); // 2.4.2 隐式字符串构造函数
 
 		// 成员函数
-		auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
+		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
 		[[nodiscard]] auto size() const -> size_t; // 自定义的成员函数，返回某个常量数据的大小或长度
 
 		class iter { // class iter 是一个嵌套在 filtered_string_view 内部的迭代器类，用于遍历过滤后的字符串视图
