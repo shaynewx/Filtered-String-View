@@ -8,13 +8,17 @@
 #include <string>
 
 namespace fsv {
+	using filter = std::function<bool(const char&)>; // 定义别名为filter，是一个接受const
+	                                                 // char&参数并返回bool的函数的可调用对象
 	class filtered_string_view {
-		using filter = std::function<bool(const char&)>; // 别名定义，方便引用谓词类型
-
 	 public:
-		static bool default_predicate(const char&) {
-			return true; // 默认谓词函数，总是返回 true
-		}
+		static bool default_predicate(const char&); // 默认的 静态成员 谓词函数，总是返回 true
+		// 构造函数
+		filtered_string_view(); // 2.4.1
+
+		// 成员函数
+		auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
+		[[nodiscard]] auto size() const -> size_t; // 自定义的成员函数，返回某个常量数据的大小或长度
 
 		class iter { // class iter 是一个嵌套在 filtered_string_view 内部的迭代器类，用于遍历过滤后的字符串视图
 		 public:
@@ -25,25 +29,28 @@ namespace fsv {
 			using reference = const char&;
 			using iterator_category = std::bidirectional_iterator_tag;
 
-			iter(); // 迭代器的默认构造函数，具体实现将在类外定义
+			iter(); // 迭代器的默认构造函数，具体实现将在cpp中
 
-			const char& operator*() const; // 重载解引用运算符 （需要修改返回类型）
-			const char* operator->() const; // 重载解箭头运算符 （需要修改返回类型）
+			auto operator*() const -> void; // // 重载解引用运算符 （需要修改返回类型）
+			auto operator->() const -> void; // // 重载解箭头运算符 （需要修改返回类型）
 
-			iter& operator++(); // 前置自增运算符，用于迭代器前进
-			iter operator++(int); // 后置自增运算符，用于迭代器前进
-			iter& operator--(); // 前置自减运算符，用于迭代器后退
-			iter operator--(int); // 后置自减运算符，用于迭代器后退
+			auto operator++() -> iter&; // 前置自增运算符，用于迭代器前进
+			auto operator++(int) -> iter; // 后置自增运算符，用于迭代器前进
+			auto operator--() -> iter&; // 前置自减运算符，用于迭代器后退
+			auto operator--(int) -> iter; // 后置自减运算符，用于迭代器后退
 
-			friend bool operator==(const iter&, const iter&); // 迭代器友元函数，重载等于比较运算符
-			friend bool operator!=(const iter&, const iter&); // 迭代器友元函数，重载不等于比较运算符
+			friend auto operator==(const iter&, const iter&) -> bool; // 迭代器友元函数，重载等于比较运算符
+			friend auto operator!=(const iter&, const iter&) -> bool; // 迭代器友元函数，重载不等于比较运算符
 
 		 private:
 			/* Implementation-specific private members */
-			// 此处添加迭代器的私有成员
+			// 添加迭代器的私有成员
 		};
 
 	 private:
+		const char* pointer_; // 指向底层字符串数据的常量指针
+		std::size_t length_; // 底层字符串的长度，这个长度包括所有字符（无论是否被过滤）
+		filter predicate_; // 存储传入的谓词函数
 	};
 } // namespace fsv
 
