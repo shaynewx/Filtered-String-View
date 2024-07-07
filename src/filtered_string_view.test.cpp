@@ -64,7 +64,23 @@ TEST_CASE("String Constructor with Predicate that matches characters intermitten
 }
 
 // 2.4.4 隐式以空字符结尾的字符串构造函数
-TEST_CASE("Filtered_string_view constructed from C-style string reports correct size") {
+TEST_CASE("Filtered_string_view constructed from C-style string") {
 	auto sv = fsv::filtered_string_view{"cat\0"};
 	REQUIRE(sv.size() == 3); //
+}
+
+// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
+TEST_CASE("Filtered_string_view constructed from C-style string with predicate") {
+	auto pred = [](const char& c) { return c == 'a'; };
+	auto sv = fsv::filtered_string_view{"cat", pred};
+
+	REQUIRE(sv.size() == 1); // 只有一个字符 'a' 符合谓词条件
+}
+
+TEST_CASE("Filtered_string_view constructed from C-style string with predicate - more chars") {
+	const char* test_str = "example";
+	auto pred = [](const char& c) { return c == 'a' || c == 'e'; };
+	fsv::filtered_string_view sv(test_str, pred);
+
+	REQUIRE(sv.size() == 3); // 'e', 'a', 'e' 一共三个字符符合谓词条件
 }

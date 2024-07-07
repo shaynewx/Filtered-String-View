@@ -43,6 +43,22 @@ namespace fsv {
 	, predicate_(default_predicate) // 使用默认的总是返回 true 的谓词
 	{}
 
+	// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
+	filtered_string_view::filtered_string_view(const char* str, filter predicate)
+	: pointer_(nullptr)
+	, length_(0)
+	, predicate_(std::move(predicate)) {
+		while (*str) { // 当未到达字符串末尾（null 字符）
+			if (predicate_(*str)) { // 如果当前字符符合谓词条件
+				if (!pointer_) {
+					pointer_ = str; // 第一次找到符合条件的字符，设置 pointer_ 指向这个字符
+				}
+				length_++; // 递增符合条件的字符数量
+			}
+			str++; // 移动到下一个字符
+		}
+	}
+
 	// 成员函数的实现
 	// 返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
 	auto filtered_string_view::data() const -> const char* {
