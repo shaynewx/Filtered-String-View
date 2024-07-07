@@ -16,37 +16,11 @@ namespace fsv {
 		// 构造函数
 		filtered_string_view(); // 2.4.1 默认构造函数
 		filtered_string_view(const std::string& s); // 2.4.2 隐式字符串构造函数
+		filtered_string_view(const std::string& str, filter predicate); // 2.4.3 带Predicate的字符串构造函数
 
 		// 成员函数
 		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
 		[[nodiscard]] auto size() const -> size_t; // 自定义的成员函数，返回某个常量数据的大小或长度
-
-		class iter { // class iter 是一个嵌套在 filtered_string_view 内部的迭代器类，用于遍历过滤后的字符串视图
-		 public:
-			using MEMBER_TYPEDEFS_GO_HERE = void; // 占位符，此处需要添加必要的类型定义
-			using difference_type = std::ptrdiff_t;
-			using value_type = const char;
-			using pointer = const char*;
-			using reference = const char&;
-			using iterator_category = std::bidirectional_iterator_tag;
-
-			iter(); // 迭代器的默认构造函数，具体实现将在cpp中
-
-			auto operator*() const -> void; // // 重载解引用运算符 （需要修改返回类型）
-			auto operator->() const -> void; // // 重载解箭头运算符 （需要修改返回类型）
-
-			auto operator++() -> iter&; // 前置自增运算符，用于迭代器前进
-			auto operator++(int) -> iter; // 后置自增运算符，用于迭代器前进
-			auto operator--() -> iter&; // 前置自减运算符，用于迭代器后退
-			auto operator--(int) -> iter; // 后置自减运算符，用于迭代器后退
-
-			friend auto operator==(const iter&, const iter&) -> bool; // 迭代器友元函数，重载等于比较运算符
-			friend auto operator!=(const iter&, const iter&) -> bool; // 迭代器友元函数，重载不等于比较运算符
-
-		 private:
-			/* Implementation-specific private members */
-			// 添加迭代器的私有成员
-		};
 
 	 private:
 		const char* pointer_; // 指向底层字符串数据的常量指针

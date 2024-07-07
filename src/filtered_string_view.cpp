@@ -1,5 +1,6 @@
 #include "./filtered_string_view.h"
 #include <iostream>
+#include <utility>
 
 namespace fsv {
 	// 默认的 静态成员 谓词函数，总是返回 true
@@ -13,10 +14,26 @@ namespace fsv {
 	, length_(0)
 	, predicate_(default_predicate) {}
 
-	filtered_string_view::filtered_string_view(const std::string& s) // 2.4.2隐式字符串构造函数
+	// 2.4.2隐式字符串构造函数
+	filtered_string_view::filtered_string_view(const std::string& s)
 	: pointer_(s.data())
 	, length_(s.size())
 	, predicate_(default_predicate) {}
+
+	// 2.4.3带Predicate的字符串构造函数
+	filtered_string_view::filtered_string_view(const std::string& s, filter predicate)
+	: pointer_(nullptr)
+	, length_(0)
+	, predicate_(std::move(predicate)) { // 将 predicate 参数转换为右值引用，然后其资源转移给成员变量 predicate_
+		for (size_t i = 0; i < s.size(); ++i) {
+			if (predicate_(s[i])) {
+				if (!pointer_) {
+					pointer_ = s.data() + i; // 第一次找到符合条件的字符
+				}
+				length_++;
+			}
+		}
+	}
 
 	// 成员函数的实现
 	auto filtered_string_view::size() const -> size_t {
