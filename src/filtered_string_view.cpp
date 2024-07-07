@@ -59,6 +59,24 @@ namespace fsv {
 		}
 	}
 
+	// 2.4.6 拷贝构造函数
+	filtered_string_view::filtered_string_view(const filtered_string_view& other)
+	: pointer_(other.pointer_)
+	, length_(other.length_)
+	, predicate_(other.predicate_) {
+		// 由于 filtered_string_view 不拥有数据，直接复制指针和长度即可
+	}
+
+	// 2.4.6 移动构造函数
+	filtered_string_view::filtered_string_view(filtered_string_view&& other) noexcept
+	: pointer_(other.pointer_)
+	, length_(other.length_)
+	, predicate_(std::move(other.predicate_)) {
+		// 将原对象的资源转移给新对象
+		other.pointer_ = nullptr; // 确保原对象不再指向原始数据
+		other.length_ = 0; // 清空原对象的长度
+	}
+
 	// 成员函数的实现
 	// 返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
 	auto filtered_string_view::data() const -> const char* {
