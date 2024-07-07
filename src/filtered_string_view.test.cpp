@@ -122,6 +122,7 @@ TEST_CASE("Move assignment transfers state correctly", "[move_assignment]") {
 
 	// 检查fs2是否正确接收了fs1的状态
 	REQUIRE((fsv1.size() == 0 && fsv1.data() == nullptr));
+	REQUIRE((fsv2.size() == 2 && fsv2.data() != nullptr));
 }
 
 // 2.5.4 []运算符的重载

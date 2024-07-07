@@ -28,7 +28,8 @@ namespace fsv {
 		auto operator==(const filtered_string_view& other) const -> bool; // 2.5.2 ==运算符的重载
 		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 =运算符的重载
 		auto operator[](int n) const -> const char&; // 2.5.4 []运算符的重载
-		explicit operator std::string() const; // 2.5.5 字符串类型转换运算符
+		explicit operator std::string() const; // 2.5.5 字符串类型转换运算符,]，允许 filtered_string_view 对象显式转换为
+		                                       // std::string
 
 		// 成员函数
 		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
