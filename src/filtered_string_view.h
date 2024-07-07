@@ -17,6 +17,8 @@ namespace fsv {
 		filtered_string_view(); // 2.4.1 默认构造函数
 		filtered_string_view(const std::string& s); // 2.4.2 隐式字符串构造函数
 		filtered_string_view(const std::string& str, filter predicate); // 2.4.3 带Predicate的字符串构造函数
+		filtered_string_view(const char* str);
+		filtered_string_view(const char* str, filter predicate);
 
 		// 成员函数
 		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针

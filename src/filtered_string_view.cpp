@@ -1,4 +1,5 @@
 #include "./filtered_string_view.h"
+#include <cstring>
 #include <iostream>
 #include <utility>
 
@@ -28,15 +29,22 @@ namespace fsv {
 		for (size_t i = 0; i < s.size(); ++i) {
 			if (predicate_(s[i])) {
 				if (!pointer_) {
-					pointer_ = s.data() + i; // 第一次找到符合条件的字符
+					pointer_ = s.data() + i; // 让pointer指向第一次找到符合条件的字符
 				}
-				length_++;
+				length_++; // 记录长度
 			}
 		}
 	}
 
+	// 2.4.4 隐式以空字符结尾的字符串构造函数
+	filtered_string_view::filtered_string_view(const char* str)
+	: pointer_(str) // 直接指向传入的 C 风格字符串
+	, length_(std::strlen(str)) // 使用 strlen 计算字符串长度，（字符串以 null 结尾）
+	, predicate_(default_predicate) // 使用默认的总是返回 true 的谓词
+	{}
+
 	// 成员函数的实现
-	//	返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
+	// 返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
 	auto filtered_string_view::data() const -> const char* {
 		return pointer_;
 	}

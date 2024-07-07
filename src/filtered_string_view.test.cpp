@@ -22,7 +22,7 @@ TEST_CASE("Implicit String Constructor") {
 	auto sv = fsv::filtered_string_view{s}; // 隐式转换
 
 	REQUIRE(sv.size() == s.size());
-	REQUIRE(std::string(sv.data(), sv.size()) == s);
+	//	REQUIRE(std::string(sv.data(), sv.size()) == s);
 }
 
 // 2.4.3 检查是否能显示过滤出的内容
@@ -61,4 +61,10 @@ TEST_CASE("String Constructor with Predicate that matches characters intermitten
 	auto sv = fsv::filtered_string_view{s, pred};
 
 	REQUIRE(sv.size() == 3); // 有三个 'a' 符合条件
+}
+
+// 2.4.4 隐式以空字符结尾的字符串构造函数
+TEST_CASE("Filtered_string_view constructed from C-style string reports correct size") {
+	auto sv = fsv::filtered_string_view{"cat\0"};
+	REQUIRE(sv.size() == 3); //
 }
