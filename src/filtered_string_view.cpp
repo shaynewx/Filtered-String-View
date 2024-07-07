@@ -77,6 +77,12 @@ namespace fsv {
 		other.length_ = 0; // 清空原对象的长度
 	}
 
+	// 运算符重载的实现
+	// 2.5.2 ==运算符的重载
+	auto filtered_string_view::operator==(const filtered_string_view& other) const -> bool {
+		return (pointer_ == other.pointer_ && length_ == other.length_);
+	}
+
 	// 成员函数的实现
 	// 返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
 	auto filtered_string_view::data() const -> const char* {

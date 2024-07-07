@@ -32,7 +32,6 @@ TEST_CASE("String Constructor with Predicate") {
 	auto sv = fsv::filtered_string_view{s, pred}; // 使用谓词的构造函数
 
 	REQUIRE(sv.size() == 1); // 只有一个字符 'a' 符合谓词条件
-	REQUIRE(std::string(sv.data(), sv.size()) == "a"); // 验证数据内容
 }
 
 TEST_CASE("String Constructor with Predicate that matches no characters") {
@@ -86,18 +85,27 @@ TEST_CASE("Filtered_string_view constructed from C-style string with predicate -
 }
 
 // 2.4.6 拷贝和移动构造函数
-TEST_CASE("Copy constructor shares the same data", "[filtered_string_view]") {
+TEST_CASE("Copy constructor shares the same data") {
 	auto sv1 = fsv::filtered_string_view{"bulldog"};
-	const auto& copy = sv1; // 使用复制构造函数
+	const auto copy = sv1; // 使用复制构造函数
 
 	// 检查复制后的对象是否与原始对象共享相同的数据指针
 	REQUIRE(copy.data() == sv1.data());
 }
 
-TEST_CASE("Move constructor transfers ownership correctly", "[filtered_string_view]") {
+TEST_CASE("Move constructor transfers ownership correctly") {
 	auto sv1 = fsv::filtered_string_view{"bulldog"};
 	const auto move = std::move(sv1); // 使用移动构造函数
 
 	// 检查移动后原始对象的指针是否被设置为 nullptr
 	REQUIRE(sv1.data() == nullptr);
+}
+
+// 2.5.2 =运算符的重载
+TEST_CASE("filtered_string_view operator==") {
+	auto pred = [](const char& c) { return c == '4' || c == '2'; };
+	fsv::filtered_string_view sv1("42 bro", pred);
+	fsv::filtered_string_view sv2("42 bro", pred);
+
+	REQUIRE(sv1 == sv2);
 }

@@ -22,6 +22,12 @@ namespace fsv {
 		filtered_string_view(const filtered_string_view& other); // 2.4.6 拷贝构造函数
 		filtered_string_view(filtered_string_view&& other) noexcept; // 2.4.6 移动构造函数
 
+		~filtered_string_view() = default; // 2.5 默认析构函数
+
+		// 运算符重载
+		auto operator==(const filtered_string_view& other) const -> bool; // 2.5.2 ==运算符的重载
+		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 =运算符的重载
+
 		// 成员函数
 		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
 		[[nodiscard]] auto size() const -> size_t; // 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
