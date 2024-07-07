@@ -101,11 +101,24 @@ TEST_CASE("Move constructor transfers ownership correctly") {
 	REQUIRE(sv1.data() == nullptr);
 }
 
-// 2.5.2 =运算符的重载
+// 2.5.2 ==运算符的重载
 TEST_CASE("filtered_string_view operator==") {
 	auto pred = [](const char& c) { return c == '4' || c == '2'; };
 	fsv::filtered_string_view sv1("42 bro", pred);
 	fsv::filtered_string_view sv2("42 bro", pred);
 
 	REQUIRE(sv1 == sv2);
+}
+
+// 2.5.3 =运算符的重载
+TEST_CASE("Move assignment transfers state correctly", "[move_assignment]") {
+	auto pred = [](const char& c) { return c == '8' || c == '9'; };
+	fsv::filtered_string_view fsv1{"89 baby", pred};
+	fsv::filtered_string_view fsv2; // 默认构造
+
+	// 执行移动赋值
+	fsv2 = std::move(fsv1);
+
+	// 检查fs2是否正确接收了fs1的状态
+	assert(fsv1.size() == 0 && fsv1.data() == nullptr);
 }
