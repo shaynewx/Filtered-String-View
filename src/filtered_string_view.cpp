@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
-#include <iterator>
 #include <utility>
 
 namespace fsv {
@@ -110,6 +109,14 @@ namespace fsv {
 		std::copy_if(pointer_, pointer_ + length_, std::back_inserter(result), predicate_);
 
 		return result;
+	}
+
+	// 2.6.1 at：允许根据索引从过滤后的字符串中读取一个字符
+	auto filtered_string_view::at(int index) -> const char& {
+		if (index < 0 || index >= static_cast<int>(size())) {
+			throw std::domain_error("filtered_string_view::at(" + std::to_string(index) + "): invalid index");
+		}
+		return pointer_[index];
 	}
 
 	// 成员函数的实现

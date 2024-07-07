@@ -2,6 +2,7 @@
 
 #include <catch2/catch.hpp>
 #include <iostream>
+#include <set>
 #include <string>
 
 // 2.3 检查默认谓词函数对所有字符是否都返回 true
@@ -133,10 +134,20 @@ TEST_CASE("filtered_string_view subscript access") {
 	REQUIRE(fsv1[2] == '0');
 }
 
-// 2.5.5 字符串类型转换运算符
+// 2.5.5 类型转换运算符，允许 filtered_string_view 对象显式转换为 std::string
 TEST_CASE("String Type Conversion") {
 	auto sv = fsv::filtered_string_view("vizsla");
 	auto s = static_cast<std::string>(sv);
 
 	std::cout << std::boolalpha << (sv.data() == s.data()) << std::endl;
+}
+
+// 2.6.1允许根据索引从过滤后的字符串中读取一个字符
+TEST_CASE("filtered_string_view valid access", "[filtered_string_view]") {
+	auto vowels = std::set<char>{'a', 'A', 'e', 'E', 'i', 'I', 'o', 'O', 'u', 'U'};
+	auto is_vowel = [&vowels](const char& c) { return vowels.contains(c); };
+	fsv::filtered_string_view sv("Malamute", is_vowel);
+
+	// Assuming 'a' is the first vowel in "Malamute" that matches the predicate
+	REQUIRE(sv.at(0) == 'a');
 }
