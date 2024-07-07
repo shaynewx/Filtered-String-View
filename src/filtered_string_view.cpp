@@ -1,4 +1,5 @@
 #include "./filtered_string_view.h"
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <utility>
@@ -25,15 +26,12 @@ namespace fsv {
 	filtered_string_view::filtered_string_view(const std::string& s, filter predicate)
 	: pointer_(nullptr)
 	, length_(0)
-	, predicate_(std::move(predicate)) { // 将 predicate 参数转换为右值引用，然后其资源转移给成员变量 predicate_
-		for (size_t i = 0; i < s.size(); ++i) {
-			if (predicate_(s[i])) {
-				if (!pointer_) {
-					pointer_ = s.data() + i; // 让pointer指向第一次找到符合条件的字符
-				}
-				length_++; // 记录长度
-			}
+	, predicate_(std::move(predicate)) {
+		auto start = std::ranges::find_if(s, predicate_);
+		if (start != s.end()) {
+			pointer_ = &*start;
 		}
+		length_ = static_cast<std::size_t>(std::ranges::count_if(s, predicate_));
 	}
 
 	// 2.4.4 隐式以空字符结尾的字符串构造函数
@@ -100,6 +98,30 @@ namespace fsv {
 	// 2.5.4 []运算符的重载，用于返回类实例中特定索引位置的字符
 	auto filtered_string_view::operator[](int n) const -> const char& {
 		return pointer_[n];
+	}
+
+	// 2.5.5 类型转换运算符
+	filtered_string_view::operator std::string() const {
+		// 第一次遍历计算符合条件的字符数量
+		std::size_t filtered_size = 0;
+		for (std::size_t i = 0; i < length_; ++i) {
+			if (predicate_(pointer_[i])) {
+				++filtered_size;
+			}
+		}
+
+		// 使用确切的空间初始化字符串
+		std::string result;
+		result.reserve(filtered_size);
+
+		// 第二次遍历添加字符
+		for (std::size_t i = 0; i < length_; ++i) {
+			if (predicate_(pointer_[i])) {
+				result += pointer_[i];
+			}
+		}
+
+		return result;
 	}
 
 	// 成员函数的实现

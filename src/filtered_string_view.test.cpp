@@ -1,6 +1,7 @@
 #include "./filtered_string_view.h"
 
 #include <catch2/catch.hpp>
+#include <iostream>
 #include <string>
 
 // 2.3 检查默认谓词函数对所有字符是否都返回 true
@@ -129,4 +130,12 @@ TEST_CASE("filtered_string_view subscript access") {
 	auto fsv1 = fsv::filtered_string_view{"only 90s kids understand", pred};
 
 	REQUIRE(fsv1[2] == '0');
+}
+
+// 2.5.5 字符串类型转换运算符
+TEST_CASE("String Type Conversion") {
+	auto sv = fsv::filtered_string_view("vizsla");
+	auto s = static_cast<std::string>(sv);
+
+	std::cout << std::boolalpha << (sv.data() == s.data()) << std::endl;
 }
