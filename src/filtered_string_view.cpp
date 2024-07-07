@@ -36,11 +36,13 @@ namespace fsv {
 	}
 
 	// 成员函数的实现
-	auto filtered_string_view::size() const -> size_t {
-		return length_;
-	}
-
+	//	返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
 	auto filtered_string_view::data() const -> const char* {
 		return pointer_;
+	}
+
+	// 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
+	auto filtered_string_view::size() const -> size_t {
+		return length_;
 	}
 } // namespace fsv

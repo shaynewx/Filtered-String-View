@@ -25,7 +25,7 @@ TEST_CASE("Implicit String Constructor") {
 	REQUIRE(std::string(sv.data(), sv.size()) == s);
 }
 
-// 2.4.3
+// 2.4.3 检查是否能显示过滤出的内容
 TEST_CASE("String Constructor with Predicate") {
 	auto s = std::string{"cat"};
 	auto pred = [](const char& c) { return c == 'a'; };
@@ -33,4 +33,32 @@ TEST_CASE("String Constructor with Predicate") {
 
 	REQUIRE(sv.size() == 1); // 只有一个字符 'a' 符合谓词条件
 	REQUIRE(std::string(sv.data(), sv.size()) == "a"); // 验证数据内容
+}
+
+TEST_CASE("String Constructor with Predicate that matches no characters") {
+	auto s = std::string{"cat"};
+	auto pred = [](const char& c) { return c == 'z'; }; // 一个不会匹配任何字符的谓词
+	auto sv = fsv::filtered_string_view{s, pred};
+
+	REQUIRE(sv.size() == 0); // 没有字符符合条件
+	REQUIRE(sv.data() == nullptr);
+}
+
+TEST_CASE("String Constructor with Predicate that matches all characters") {
+	auto s = std::string{"cat"};
+	auto pred = [](const char& c) {
+		(void)c;
+		return true;
+	}; // 所有字符都符合条件的谓词
+	auto sv = fsv::filtered_string_view{s, pred};
+
+	REQUIRE(sv.size() == 3); // 所有字符都应该符合条件
+}
+
+TEST_CASE("String Constructor with Predicate that matches characters intermittently") {
+	auto s = std::string{"banana"};
+	auto pred = [](const char& c) { return c == 'a'; }; // 只有 'a' 符合条件
+	auto sv = fsv::filtered_string_view{s, pred};
+
+	REQUIRE(sv.size() == 3); // 有三个 'a' 符合条件
 }

@@ -20,7 +20,7 @@ namespace fsv {
 
 		// 成员函数
 		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
-		[[nodiscard]] auto size() const -> size_t; // 自定义的成员函数，返回某个常量数据的大小或长度
+		[[nodiscard]] auto size() const -> size_t; // 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
 
 	 private:
 		const char* pointer_; // 指向底层字符串数据的常量指针
