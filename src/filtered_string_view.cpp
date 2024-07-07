@@ -97,6 +97,11 @@ namespace fsv {
 		return *this; // 返回当前对象的引用
 	}
 
+	// 2.5.4 []运算符的重载，用于返回类实例中特定索引位置的字符
+	auto filtered_string_view::operator[](int n) const -> const char& {
+		return pointer_[n];
+	}
+
 	// 成员函数的实现
 	// 返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
 	auto filtered_string_view::data() const -> const char* {

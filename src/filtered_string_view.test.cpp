@@ -120,5 +120,13 @@ TEST_CASE("Move assignment transfers state correctly", "[move_assignment]") {
 	fsv2 = std::move(fsv1);
 
 	// 检查fs2是否正确接收了fs1的状态
-	assert(fsv1.size() == 0 && fsv1.data() == nullptr);
+	REQUIRE((fsv1.size() == 0 && fsv1.data() == nullptr));
+}
+
+// 2.5.4 []运算符的重载
+TEST_CASE("filtered_string_view subscript access") {
+	auto pred = [](const char& c) { return c == '9' || c == '0' || c == ' '; };
+	auto fsv1 = fsv::filtered_string_view{"only 90s kids understand", pred};
+
+	REQUIRE(fsv1[2] == '0');
 }

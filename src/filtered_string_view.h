@@ -27,7 +27,7 @@ namespace fsv {
 		// 运算符重载
 		auto operator==(const filtered_string_view& other) const -> bool; // 2.5.2 ==运算符的重载
 		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 =运算符的重载
-		auto operator[](int n) const -> const char&; //
+		auto operator[](int n) const -> const char&; // 2.5.4 []运算符的重载
 
 		// 成员函数
 		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
