@@ -232,3 +232,12 @@ TEST_CASE("Access and call predicate function") {
 	// 使用 REQUIRE 检查输出是否为 "hi!"
 	REQUIRE(buffer.str() == "hi!");
 }
+
+// 2.7.1. ==运算符的重载，按字典顺序比较两个filtered_string_view字符串是否相等
+TEST_CASE("filtered_string_view equality and inequality") {
+	auto lo = fsv::filtered_string_view{"aaa"};
+	auto hi = fsv::filtered_string_view{"zzz"};
+
+	REQUIRE_FALSE(lo == hi);
+	REQUIRE(lo != hi);
+}

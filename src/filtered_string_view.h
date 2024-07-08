@@ -25,7 +25,7 @@ namespace fsv {
 		~filtered_string_view() = default; // 2.5 默认析构函数
 
 		// 运算符重载
-		auto operator==(const filtered_string_view& other) const -> bool; // 2.5.2 ==运算符的重载
+		//		auto operator==(const filtered_string_view& other) const -> bool; // 2.5.2 ==运算符的重载
 		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 =运算符的重载
 		auto operator[](int n) const -> const char&; // 2.5.4 []运算符的重载
 		explicit operator std::string() const; // 2.5.5 字符串类型转换运算符,]，允许 filtered_string_view 对象显式转换为
@@ -44,6 +44,9 @@ namespace fsv {
 		filter predicate_; // 过滤条件，即何种字符应该被包含在视图中
 		static const char default_char; // 用于无效索引情况的默认字符
 	};
+
+	bool operator==(const filtered_string_view& lhs, const filtered_string_view& rhs); // 2.7.1. ==运算符的重载
+
 } // namespace fsv
 
 #endif // COMP6771_ASS2_FSV_H

@@ -70,12 +70,7 @@ namespace fsv {
 		other.length_ = 0; // 清空原对象other的长度
 	}
 
-	// 运算符重载的实现
-	// 2.5.2 ==运算符的重载，用于比较两个视图是否指向相同的数据序列（通过比较指针）并且长度相同 （用于更新已存在的对象）
-	auto filtered_string_view::operator==(const filtered_string_view& other) const -> bool {
-		return (pointer_ == other.pointer_ and length_ == other.length_);
-	}
-
+	// 2.5 类内部运算符重载的实现
 	// 2.5.3 =运算符的重载，用于将一个即将被销毁的对象的资源移动到另一个对象 （在已存在的对象间转移）
 	auto filtered_string_view::operator=(filtered_string_view&& other) noexcept -> filtered_string_view& {
 		if (this != &other) { // 于确保对象不会将自己赋值给自己（this 用于获取当前对象的指针）
@@ -171,4 +166,8 @@ namespace fsv {
 		return predicate_;
 	}
 
+	// 2.7.1. ==运算符的重载，按字典顺序比较两个filtered_string_view字符串是否相等
+	bool operator==(const filtered_string_view& lhs, const filtered_string_view& rhs) {
+		return static_cast<std::string>(lhs) == static_cast<std::string>(rhs);
+	}
 } // namespace fsv
