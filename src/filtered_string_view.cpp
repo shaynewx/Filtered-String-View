@@ -131,4 +131,10 @@ namespace fsv {
 	auto filtered_string_view::size() const -> std::size_t {
 		return length_;
 	}
+
+	// 2.6.3 返回过滤后的字符串是否为空
+	auto filtered_string_view::empty() const -> bool {
+		return size() == 0;
+	}
+
 } // namespace fsv

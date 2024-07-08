@@ -149,14 +149,17 @@ TEST_CASE("filtered_string_view valid access") {
 	auto is_vowel = [&vowels](const char& c) { return vowels.contains(c); };
 	fsv::filtered_string_view sv("Malamute", is_vowel);
 
-	// Assuming 'a' is the first vowel in "Malamute" that matches the predicate
 	REQUIRE(sv.at(0) == 'a');
 }
 
 TEST_CASE("filtered_string_view invalid access2") {
-	fsv::filtered_string_view sv(""); // Creating an empty filtered_string_view
+	fsv::filtered_string_view sv("");
+	try {
+		sv.at(0);
+	} catch (const std::domain_error& e) {
+		std::cout << e.what();
+	}
 
-	// Attempting to access any character should throw a std::domain_error
 	REQUIRE_THROWS_AS(sv.at(0), std::domain_error);
 }
 
@@ -170,4 +173,20 @@ TEST_CASE("filtered_string_view size of filtered strings11") {
 TEST_CASE("filtered_string_view size of filtered strings22") {
 	auto sv = fsv::filtered_string_view{"Toy Poodle", [](const char& c) { return c == 'o'; }};
 	REQUIRE(sv.size() == 3); // "Toy Poodle" has four 'o's
+}
+
+// 2.6.3 返回过滤后的字符串是否为空
+TEST_CASE("Empty check for non-empty filtered string view1") {
+	auto sv = fsv::filtered_string_view("Australian Shepherd");
+	auto empty_sv = fsv::filtered_string_view{};
+	std::cout << std::boolalpha << sv.empty() << ' ' << empty_sv.empty();
+
+	REQUIRE_FALSE(sv.empty()); // 应该返回 false，因为字符串非空
+}
+
+TEST_CASE("Empty check for empty filtered string view2") {
+	auto sv = fsv::filtered_string_view("Border Collie", [](const char& c) { return c == 'z'; });
+	std::cout << std::boolalpha << sv.empty();
+
+	REQUIRE(sv.empty()); // 应该返回 true，因为没有字符符合谓词，视图为空
 }

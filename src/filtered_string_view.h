@@ -37,6 +37,7 @@ namespace fsv {
 		// 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
 		auto at(int index) -> const char&; // 2.6.1 允许根据索引从过滤后的字符串中读取一个字符
 		auto size() const -> std::size_t; // 2.6.2 返回已过滤字符串的大小
+		auto empty() const -> bool; // 2.6.3 返回过滤后的字符串是否为空
 
 	 private:
 		const char* pointer_; // 指向原始字符串数据的常量指针
