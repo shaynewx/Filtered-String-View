@@ -140,14 +140,34 @@ TEST_CASE("String Type Conversion") {
 	auto s = static_cast<std::string>(sv);
 
 	std::cout << std::boolalpha << (sv.data() == s.data()) << std::endl;
+	REQUIRE(sv.data() != s.data());
 }
 
 // 2.6.1允许根据索引从过滤后的字符串中读取一个字符
-TEST_CASE("filtered_string_view valid access", "[filtered_string_view]") {
+TEST_CASE("filtered_string_view valid access") {
 	auto vowels = std::set<char>{'a', 'A', 'e', 'E', 'i', 'I', 'o', 'O', 'u', 'U'};
 	auto is_vowel = [&vowels](const char& c) { return vowels.contains(c); };
 	fsv::filtered_string_view sv("Malamute", is_vowel);
 
 	// Assuming 'a' is the first vowel in "Malamute" that matches the predicate
 	REQUIRE(sv.at(0) == 'a');
+}
+
+TEST_CASE("filtered_string_view invalid access2") {
+	fsv::filtered_string_view sv(""); // Creating an empty filtered_string_view
+
+	// Attempting to access any character should throw a std::domain_error
+	REQUIRE_THROWS_AS(sv.at(0), std::domain_error);
+}
+
+// 2.6.2 返回已过滤字符串的大小
+TEST_CASE("filtered_string_view size of filtered strings11") {
+	auto sv = fsv::filtered_string_view{"Maltese"};
+
+	REQUIRE(sv.size() == 7); // "Toy Poodle" has four 'o's
+}
+
+TEST_CASE("filtered_string_view size of filtered strings22") {
+	auto sv = fsv::filtered_string_view{"Toy Poodle", [](const char& c) { return c == 'o'; }};
+	REQUIRE(sv.size() == 3); // "Toy Poodle" has four 'o's
 }

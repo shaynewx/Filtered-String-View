@@ -27,12 +27,14 @@ namespace fsv {
 	: pointer_(nullptr) // 表示没有任何字符被选中或没有底层数据
 	, length_(0) // 表示开始时认为没有任何字符符合谓词条件
 	, predicate_(std::move(predicate)) {
-		auto start = std::ranges::find_if(s, predicate_);
-		if (start != s.end()) {
-			pointer_ = &*start;
+		for (char c : s) {
+			if (predicate_(c)) { // 如果当前字符满足为此条件，指针没有指向匹配字符
+				if (pointer_ == nullptr) {
+					pointer_ = &c; // 设置 pointer_ 指向第一个匹配的字符
+				}
+				length_++; // 只计算符合谓词的字符
+			}
 		}
-		length_ =
-		    static_cast<std::size_t>(std::ranges::count_if(s, predicate_)); // static_cast用于确保返回结果的类型为size_t
 	}
 
 	// 2.4.4 隐式以空字符结尾的字符串构造函数
@@ -98,7 +100,7 @@ namespace fsv {
 		return pointer_[n];
 	}
 
-	// 2.5.5 类型转换运算符，允许 filtered_string_view 对象显式转换为 std::string
+	// 2.5.5 类型转换运算符，允许 filtered_string_view 对象显式转换为 std::string，返回的是过滤后字符串的拷贝
 	filtered_string_view::operator std::string() const {
 		std::string result; // 初始化输出结果
 		result.reserve(length_); // 结果的最大可能长度为原字符串的长度
@@ -111,22 +113,22 @@ namespace fsv {
 		return result;
 	}
 
+	// 成员函数的实现
 	// 2.6.1 at：允许根据索引从过滤后的字符串中读取一个字符
 	auto filtered_string_view::at(int index) -> const char& {
-		if (index < 0 || index >= static_cast<int>(size())) {
+		if (index < 0 or index >= static_cast<int>(size())) { // 如果索引无效则抛出异常
 			throw std::domain_error("filtered_string_view::at(" + std::to_string(index) + "): invalid index");
 		}
 		return pointer_[index];
 	}
 
-	// 成员函数的实现
 	// 返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
 	auto filtered_string_view::data() const -> const char* {
 		return pointer_;
 	}
 
-	// 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
-	auto filtered_string_view::size() const -> size_t {
+	// 2.6.2 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
+	auto filtered_string_view::size() const -> std::size_t {
 		return length_;
 	}
 } // namespace fsv
