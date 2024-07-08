@@ -5,6 +5,7 @@
 #include <utility>
 
 namespace fsv {
+
 	// 默认的 静态成员 谓词函数，总是返回 true
 	auto filtered_string_view::default_predicate(const char&) -> bool {
 		return true;
@@ -41,21 +42,6 @@ namespace fsv {
 	, predicate_(default_predicate) {} // 使用默认的总是返回 true 的谓词
 
 	// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
-	//	filtered_string_view::filtered_string_view(const char* str, filter predicate)
-	//	: pointer_(nullptr) // 表示没有任何字符被选中或没有底层数据
-	//	, length_(0) // 表示开始时认为没有任何字符符合谓词条件
-	//	, predicate_(std::move(predicate)) {
-	//		// 当未到达字符串末尾（null 字符）
-	//		while (*str) { // *str 返回str当前指向的字符（对str的解引用）
-	//			if (predicate_(*str)) { // 检查当前字符是否满足谓词条件
-	//				if (!pointer_) { // 如果 pointer_ 还未设置，
-	//					pointer_ = str; // 则将 pointer_ 设置为当前的 str 指针位置
-	//				}
-	//				length_++; // 增加符合条件的字符计数
-	//			}
-	//			str++; // 移动到下一个字符
-	//		}
-	//	}
 	filtered_string_view::filtered_string_view(const char* str, filter predicate)
 	: pointer_(str) // 直接指向原始 C 字符串
 	, length_(0) // 开始时认为没有任何字符符合谓词条件
@@ -104,9 +90,27 @@ namespace fsv {
 		return *this; // 返回 接受资源移动的当前对象 的引用
 	}
 
+	// 定义静态成员，用于无效索引情况的默认字符
+	const char filtered_string_view::default_char = '\0';
+
 	// 2.5.4 []运算符的重载，用于返回类实例中特定索引位置的字符
 	auto filtered_string_view::operator[](int n) const -> const char& {
-		return pointer_[n];
+		const char* temp_ptr = pointer_; // 从原始数据开始
+		int count = 0; // 跟踪已经遇到的符合谓词条件的字符数
+
+		while (*temp_ptr != '\0') { // 循环遍历字符串
+			if (predicate_(*temp_ptr)) { // 检查当前字符是否满足过滤条件
+				if (count == n) { // 当找到第n个符合条件的字符时返回
+					return *temp_ptr;
+				}
+				count++;
+			}
+			temp_ptr++; // 移动到下一个字符
+		}
+
+		// 如果索引n超出了符合条件的字符数，抛出异常
+		//		throw std::out_of_range("filtered_string_view::operator[]: Index out of range");
+		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
 	}
 
 	// 2.5.5 类型转换运算符，允许 filtered_string_view 对象显式转换为 std::string，返回的是过滤后字符串的拷贝
@@ -130,10 +134,26 @@ namespace fsv {
 
 	// 2.6.1 at：允许根据索引从过滤后的字符串中读取一个字符
 	auto filtered_string_view::at(int index) -> const char& {
-		if (index < 0 or index >= static_cast<int>(size())) { // 如果索引无效则抛出异常
-			throw std::domain_error("filtered_string_view::at(" + std::to_string(index) + "): invalid index");
+		if (index < 0 || index >= static_cast<int>(size())) {
+			throw std::domain_error("filtered_string_view::at: Invalid index");
 		}
-		return pointer_[index];
+
+		const char* temp_ptr = pointer_; // 初始化指针，指向底层字符串数据的起始位置
+		int count = 0; // 记录遇到符合谓词条件的字符的数量
+
+		while (*temp_ptr != '\0') { // 循环遍历底层字符串
+			if (predicate_(*temp_ptr)) { // 检查当前字符是否满足过滤条件
+				if (count == index) { // 找到索引 index 所指的符合条件的字符时返回
+					return *temp_ptr;
+				}
+				count++;
+			}
+			temp_ptr++;
+		}
+
+		// 理论上，这个异常不会被抛出，因为此前已经检查过
+		//		throw std::out_of_range("filtered_string_view::at: Index out of range");
+		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
 	}
 
 	// 2.6.2 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数

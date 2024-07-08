@@ -41,6 +41,7 @@ namespace fsv {
 		const char* pointer_; // 指向原始字符串数据的常量指针
 		std::size_t length_; // 存储字符串的原始长度
 		filter predicate_; // 过滤条件，即何种字符应该被包含在视图中
+		static const char default_char; // 用于无效索引情况的默认字符
 	};
 } // namespace fsv
 
