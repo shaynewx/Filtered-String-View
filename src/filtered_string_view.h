@@ -1,11 +1,16 @@
 #ifndef COMP6771_ASS2_FSV_H
 #define COMP6771_ASS2_FSV_H
 
+#include <algorithm>
 #include <compare>
+#include <cstring>
 #include <functional>
+#include <iostream>
 #include <iterator>
 #include <optional>
+#include <stdexcept>
 #include <string>
+#include <utility>
 
 namespace fsv {
 	using filter = std::function<bool(const char&)>; // 定义别名为filter，是一个接受const

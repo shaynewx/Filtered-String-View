@@ -1,7 +1,11 @@
 #include "./filtered_string_view.h"
 #include <algorithm>
+#include <compare>
 #include <cstring>
 #include <iostream>
+#include <iterator>
+#include <stdexcept>
+#include <string>
 #include <utility>
 
 namespace fsv {
