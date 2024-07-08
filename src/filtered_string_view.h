@@ -32,9 +32,7 @@ namespace fsv {
 		                                       // std::string
 
 		// 成员函数
-		[[nodiscard]] auto data() const -> const char*; // 自定义的成员函数，返回一个指向常量字符串的常量指针
-		//		[[nodiscard]] auto size() const -> std::size_t;
-		// 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
+		auto data() const -> const char*; // 返回指向过滤后数据的指针
 		auto at(int index) -> const char&; // 2.6.1 允许根据索引从过滤后的字符串中读取一个字符
 		auto size() const -> std::size_t; // 2.6.2 返回已过滤字符串的大小
 		auto empty() const -> bool; // 2.6.3 返回过滤后的字符串是否为空

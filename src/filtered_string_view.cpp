@@ -24,14 +24,11 @@ namespace fsv {
 
 	// 2.4.3带Predicate的字符串构造函数
 	filtered_string_view::filtered_string_view(const std::string& s, filter predicate)
-	: pointer_(nullptr) // 表示没有任何字符被选中或没有底层数据
+	: pointer_(s.data())
 	, length_(0) // 表示开始时认为没有任何字符符合谓词条件
 	, predicate_(std::move(predicate)) {
 		for (char c : s) {
 			if (predicate_(c)) { // 如果当前字符满足为此条件，指针没有指向匹配字符
-				if (pointer_ == nullptr) {
-					pointer_ = &c; // 设置 pointer_ 指向第一个匹配的字符
-				}
 				length_++; // 只计算符合谓词的字符
 			}
 		}
@@ -44,19 +41,31 @@ namespace fsv {
 	, predicate_(default_predicate) {} // 使用默认的总是返回 true 的谓词
 
 	// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
+	//	filtered_string_view::filtered_string_view(const char* str, filter predicate)
+	//	: pointer_(nullptr) // 表示没有任何字符被选中或没有底层数据
+	//	, length_(0) // 表示开始时认为没有任何字符符合谓词条件
+	//	, predicate_(std::move(predicate)) {
+	//		// 当未到达字符串末尾（null 字符）
+	//		while (*str) { // *str 返回str当前指向的字符（对str的解引用）
+	//			if (predicate_(*str)) { // 检查当前字符是否满足谓词条件
+	//				if (!pointer_) { // 如果 pointer_ 还未设置，
+	//					pointer_ = str; // 则将 pointer_ 设置为当前的 str 指针位置
+	//				}
+	//				length_++; // 增加符合条件的字符计数
+	//			}
+	//			str++; // 移动到下一个字符
+	//		}
+	//	}
 	filtered_string_view::filtered_string_view(const char* str, filter predicate)
-	: pointer_(nullptr) // 表示没有任何字符被选中或没有底层数据
-	, length_(0) // 表示开始时认为没有任何字符符合谓词条件
+	: pointer_(str) // 直接指向原始 C 字符串
+	, length_(0) // 开始时认为没有任何字符符合谓词条件
 	, predicate_(std::move(predicate)) {
-		// 当未到达字符串末尾（null 字符）
-		while (*str) { // *str 返回str当前指向的字符（对str的解引用）
-			if (predicate_(*str)) { // 检查当前字符是否满足谓词条件
-				if (!pointer_) { // 如果 pointer_ 还未设置，
-					pointer_ = str; // 则将 pointer_ 设置为当前的 str 指针位置
-				}
+		const char* start = str; // 用一个额外的指针来迭代字符串，以保留原始指针
+		while (*start) { // *str 返回str当前指向的字符
+			if (predicate_(*start)) { // 检查当前字符是否满足谓词条件
 				length_++; // 增加符合条件的字符计数
 			}
-			str++; // 移动到下一个字符
+			start++; // 移动到下一个字符
 		}
 	}
 
@@ -114,17 +123,17 @@ namespace fsv {
 	}
 
 	// 成员函数的实现
+	//
+	auto filtered_string_view::data() const -> const char* {
+		return pointer_;
+	}
+
 	// 2.6.1 at：允许根据索引从过滤后的字符串中读取一个字符
 	auto filtered_string_view::at(int index) -> const char& {
 		if (index < 0 or index >= static_cast<int>(size())) { // 如果索引无效则抛出异常
 			throw std::domain_error("filtered_string_view::at(" + std::to_string(index) + "): invalid index");
 		}
 		return pointer_[index];
-	}
-
-	// 返回一个指向常量字符的指针，指向原始字符串中第一个满足谓词条件的字符
-	auto filtered_string_view::data() const -> const char* {
-		return pointer_;
 	}
 
 	// 2.6.2 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
