@@ -266,3 +266,19 @@ TEST_CASE("Output operator for filtered_string_view") {
 
 	REQUIRE(ss.str() == "c++"); // 验证输出是否仅包含过滤后的字符
 }
+
+// 2.8.1 compose
+TEST_CASE("Compose function combines multiple filters") {
+	fsv::filtered_string_view best_languages{"c / c++"};
+	auto vf = std::vector<fsv::filter>{[](const char& c) { return c == 'c' || c == '+' || c == '/'; },
+	                                   [](const char& c) { return c > ' '; },
+	                                   [](const char& /* unused */) { return true; }};
+
+	auto sv = fsv::compose(best_languages, vf);
+	std::cout << sv;
+
+	std::stringstream ss;
+	ss << sv; // 使用 operator<< 进行输出
+
+	REQUIRE(ss.str() == "c/c++"); // 验证输出是否正确
+}

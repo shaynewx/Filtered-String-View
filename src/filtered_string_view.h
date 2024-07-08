@@ -50,10 +50,14 @@ namespace fsv {
 		static const char default_char; // 用于无效索引情况的默认字符
 	};
 
+	// 类外部的运算符重载
 	auto operator==(const filtered_string_view& lhs, const filtered_string_view& rhs) -> bool; // 2.7.1. ==运算符的重载
 	auto operator<=>(const filtered_string_view& lhs,
 	                 const filtered_string_view& rhs) -> std::strong_ordering; // 2.7.2 <=>运算符的重载
 	auto operator<<(std::ostream& os, const filtered_string_view& fsv) -> std::ostream&; // 2.7.3 <<运算符的重载
+
+	// 2.8 类外部的非成员函数
+	auto compose(const filtered_string_view& fsv, const std::vector<filter>& filts) -> filtered_string_view; // 2.8.1
 
 } // namespace fsv
 
