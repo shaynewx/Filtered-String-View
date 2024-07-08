@@ -241,3 +241,28 @@ TEST_CASE("filtered_string_view equality and inequality") {
 	REQUIRE_FALSE(lo == hi);
 	REQUIRE(lo != hi);
 }
+
+// 2.7.2 <=>运算符的重载
+TEST_CASE("Spaceship operator for filtered_string_view") {
+	auto lo = fsv::filtered_string_view{"aaa"};
+	auto hi = fsv::filtered_string_view{"zzz"};
+
+	REQUIRE((lo < hi) == true);
+	REQUIRE((lo <= hi) == true);
+	REQUIRE((lo > hi) == false);
+	REQUIRE((lo >= hi) == false);
+	REQUIRE((lo == hi) == false);
+	REQUIRE((lo != hi) == true);
+	REQUIRE((lo <=> hi == std::strong_ordering::less));
+}
+
+// // 2.7.3 <<运算符的重载
+TEST_CASE("Output operator for filtered_string_view") {
+	fsv::filtered_string_view fsv("c++ > rust > java", [](const char& c) { return c == 'c' || c == '+'; });
+	std::cout << fsv;
+
+	std::stringstream ss;
+	ss << fsv; // 使用自定义的输出运算符
+
+	REQUIRE(ss.str() == "c++"); // 验证输出是否仅包含过滤后的字符
+}

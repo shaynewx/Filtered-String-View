@@ -167,7 +167,23 @@ namespace fsv {
 	}
 
 	// 2.7.1. ==运算符的重载，按字典顺序比较两个filtered_string_view字符串是否相等
-	bool operator==(const filtered_string_view& lhs, const filtered_string_view& rhs) {
+	auto operator==(const filtered_string_view& lhs, const filtered_string_view& rhs) -> bool {
 		return static_cast<std::string>(lhs) == static_cast<std::string>(rhs);
 	}
+
+	// 2.7.2 <=>运算符的重载
+	auto operator<=>(const filtered_string_view& lhs, const filtered_string_view& rhs) -> std::strong_ordering {
+		auto lhs_str = static_cast<std::string>(lhs); // 将 lhs 转换为 string
+		auto rhs_str = static_cast<std::string>(rhs); // 将 rhs 转换为 string
+		return lhs_str.compare(rhs_str) <=> 0; // 使用标准库的比较功能和C++20的太空船运算符
+	}
+
+	// 2.7.3 <<运算符的重载
+	std::ostream& operator<<(std::ostream& os, const filtered_string_view& fsv) {
+		for (std::size_t i = 0; i < fsv.size(); ++i) {
+			os << fsv[static_cast<int>(i)]; // 输出每个过滤后的字符
+		}
+		return os;
+	}
+
 } // namespace fsv
