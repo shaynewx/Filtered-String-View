@@ -127,11 +127,6 @@ namespace fsv {
 	}
 
 	// 成员函数的实现
-	//
-	auto filtered_string_view::data() const -> const char* {
-		return pointer_;
-	}
-
 	// 2.6.1 at：允许根据索引从过滤后的字符串中读取一个字符
 	auto filtered_string_view::at(int index) -> const char& {
 		if (index < 0 || index >= static_cast<int>(size())) {
@@ -164,6 +159,16 @@ namespace fsv {
 	// 2.6.3 返回过滤后的字符串是否为空
 	auto filtered_string_view::empty() const -> bool {
 		return size() == 0;
+	}
+
+	// 2.6.4 返回指向底层数据的指针
+	auto filtered_string_view::data() const -> const char* {
+		return pointer_;
+	}
+
+	// 2.6.5 访问用于进行过滤的谓词
+	auto filtered_string_view::predicate() const -> const filter& {
+		return predicate_;
 	}
 
 } // namespace fsv

@@ -3,6 +3,7 @@
 #include <catch2/catch.hpp>
 #include <iostream>
 #include <set>
+#include <sstream>
 #include <string>
 
 // 2.3 检查默认谓词函数对所有字符是否都返回 true
@@ -204,4 +205,30 @@ TEST_CASE("Data ignores filtering and outputs the entire string") {
 	}
 
 	REQUIRE(output == "Sum 42");
+}
+
+// 2.6.5 访问用于进行过滤的谓词
+TEST_CASE("Access and call predicate function") {
+	// 创建一个打印并返回真值的谓词（这个谓词每次被调用时都打印 "hi!" 并返回 true ，不会过滤任何数据）
+	const auto print_and_return_true = [](const char&) {
+		std::cout << "hi!";
+		return true;
+	};
+
+	const auto s = fsv::filtered_string_view{"doggo", print_and_return_true};
+
+	const auto& predicate = s.predicate();
+
+	// 捕获 std::cout 输出到一个 stringstream
+	std::stringstream buffer;
+	std::streambuf* prevCoutbuf = std::cout.rdbuf(buffer.rdbuf());
+
+	// 调用谓词
+	predicate(char{});
+
+	// 恢复原始 std::cout buffer
+	std::cout.rdbuf(prevCoutbuf);
+
+	// 使用 REQUIRE 检查输出是否为 "hi!"
+	REQUIRE(buffer.str() == "hi!");
 }

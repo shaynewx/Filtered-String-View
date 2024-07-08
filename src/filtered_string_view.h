@@ -32,10 +32,11 @@ namespace fsv {
 		                                       // std::string
 
 		// 成员函数
-		auto data() const -> const char*; // 返回指向过滤后数据的指针
 		auto at(int index) -> const char&; // 2.6.1 允许根据索引从过滤后的字符串中读取一个字符
 		auto size() const -> std::size_t; // 2.6.2 返回已过滤字符串的大小
 		auto empty() const -> bool; // 2.6.3 返回过滤后的字符串是否为空
+		auto data() const -> const char*; // 2.6.4 返回指向底层数据的指针
+		auto predicate() const -> const filter&; // 2.6.5 访问用于进行过滤的谓词
 
 	 private:
 		const char* pointer_; // 指向原始字符串数据的常量指针
