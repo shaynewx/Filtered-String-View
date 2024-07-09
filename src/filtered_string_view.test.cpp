@@ -282,3 +282,5 @@ TEST_CASE("Compose function combines multiple filters") {
 
 	REQUIRE(ss.str() == "c/c++"); // 验证输出是否正确
 }
+
+// 2.8.2 Split

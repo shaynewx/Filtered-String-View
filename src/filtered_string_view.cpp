@@ -16,7 +16,8 @@ namespace fsv {
 	}
 
 	// 构造函数的实现
-	filtered_string_view::filtered_string_view() // 2.4.1 默认构造函数
+	// 2.4.1 默认构造函数
+	filtered_string_view::filtered_string_view()
 	: pointer_(nullptr)
 	, length_(0)
 	, predicate_(default_predicate) {}
@@ -30,14 +31,8 @@ namespace fsv {
 	// 2.4.3带Predicate的字符串构造函数
 	filtered_string_view::filtered_string_view(const std::string& s, filter predicate)
 	: pointer_(s.data())
-	, length_(0) // 表示开始时认为没有任何字符符合谓词条件
-	, predicate_(std::move(predicate)) {
-		for (char c : s) {
-			if (predicate_(c)) { // 如果当前字符满足为此条件，指针没有指向匹配字符
-				length_++; // 只计算符合谓词的字符
-			}
-		}
-	}
+	, length_(s.size()) // 表示开始时认为没有任何字符符合谓词条件
+	, predicate_(std::move(predicate)) {}
 
 	// 2.4.4 隐式以空字符结尾的字符串构造函数
 	filtered_string_view::filtered_string_view(const char* str)
@@ -48,16 +43,8 @@ namespace fsv {
 	// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
 	filtered_string_view::filtered_string_view(const char* str, filter predicate)
 	: pointer_(str) // 直接指向原始 C 字符串
-	, length_(0) // 开始时认为没有任何字符符合谓词条件
-	, predicate_(std::move(predicate)) {
-		const char* start = str; // 用一个额外的指针来迭代字符串，以保留原始指针
-		while (*start) { // *str 返回str当前指向的字符
-			if (predicate_(*start)) { // 检查当前字符是否满足谓词条件
-				length_++; // 增加符合条件的字符计数
-			}
-			start++; // 移动到下一个字符
-		}
-	}
+	, length_(std::strlen(str)) // 开始时认为没有任何字符符合谓词条件
+	, predicate_(std::move(predicate)) {}
 
 	// 2.4.6 拷贝构造函数
 	filtered_string_view::filtered_string_view(const filtered_string_view& other)
@@ -151,8 +138,17 @@ namespace fsv {
 	}
 
 	// 2.6.2 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
+	//	auto filtered_string_view::size() const -> std::size_t {
+	//		return length_;
+	//	}
 	auto filtered_string_view::size() const -> std::size_t {
-		return length_;
+		std::size_t count = 0;
+		for (std::size_t i = 0; i < length_; ++i) {
+			if (predicate_(pointer_[i])) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	// 2.6.3 返回过滤后的字符串是否为空
@@ -191,6 +187,7 @@ namespace fsv {
 	}
 
 	// 2.8 类外部的非成员函数
+	// 2.8.1 Compose
 	auto compose(const filtered_string_view& fsv, const std::vector<filter>& filts) -> filtered_string_view {
 		/*
 		 * 接收一个fsv对象和一个过滤谓词的vector，返回一个新的fsv对象，
@@ -208,5 +205,7 @@ namespace fsv {
 
 		return filtered_string_view(fsv.data(), composite_filter);
 	}
+
+	// 2.8.2 Split
 
 } // namespace fsv
