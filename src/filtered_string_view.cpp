@@ -62,18 +62,27 @@ namespace fsv {
 	}
 
 	// 2.5 类内部运算符重载的实现
-	// 2.5.3 =运算符的重载，用于将一个即将被销毁的对象的资源移动到另一个对象 （在已存在的对象间转移）
-	auto filtered_string_view::operator=(filtered_string_view&& other) noexcept -> filtered_string_view& {
-		if (this != &other) { // 于确保对象不会将自己赋值给自己（this 用于获取当前对象的指针）
+	// 2.5.2 =运算符的重载，用于复制任务
+	auto filtered_string_view::operator=(filtered_string_view& other) -> filtered_string_view& {
+		if (this != &other) { // 检查自赋值
 			pointer_ = other.pointer_;
 			length_ = other.length_;
-			predicate_ = std::move(other.predicate_);
+			predicate_ = other.predicate_; // 谓词的赋值通常是安全的
+		}
+		return *this;
+	}
+	// 2.5.3 =运算符的重载，用于移动任务
+	auto filtered_string_view::operator=(filtered_string_view&& other) noexcept -> filtered_string_view& {
+		if (this != &other) {
+			pointer_ = other.pointer_;
+			length_ = other.length_;
+			predicate_ = std::move(other.predicate_); // 移动谓词
 
-			// 将 other 重置为有效的默认状态
+			// 将移动来源对象置于安全状态
 			other.pointer_ = nullptr;
 			other.length_ = 0;
 		}
-		return *this; // 返回 接受资源移动的当前对象 的引用
+		return *this;
 	}
 
 	// 定义静态成员，用于无效索引情况的默认字符
@@ -138,17 +147,8 @@ namespace fsv {
 	}
 
 	// 2.6.2 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
-	//	auto filtered_string_view::size() const -> std::size_t {
-	//		return length_;
-	//	}
 	auto filtered_string_view::size() const -> std::size_t {
-		std::size_t count = 0;
-		for (std::size_t i = 0; i < length_; ++i) {
-			if (predicate_(pointer_[i])) {
-				count++;
-			}
-		}
-		return count;
+		return static_cast<std::size_t>(std::count_if(pointer_, pointer_ + length_, predicate_));
 	}
 
 	// 2.6.3 返回过滤后的字符串是否为空

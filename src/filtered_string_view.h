@@ -30,7 +30,9 @@ namespace fsv {
 		~filtered_string_view() = default; // 2.5 默认析构函数
 
 		// 运算符重载
+		auto operator=(filtered_string_view& other) -> filtered_string_view&; // 2.5.2 =运算符的重载
 		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 =运算符的重载
+
 		auto operator[](int n) const -> const char&; // 2.5.4 []运算符的重载
 		explicit operator std::string() const; // 2.5.5
 		                                       // 字符串类型转换运算符，允许将filtered_string_view显式转换为std::string
@@ -57,8 +59,8 @@ namespace fsv {
 
 	// 2.8 类外部的非成员函数
 	auto compose(const filtered_string_view& fsv, const std::vector<filter>& filts) -> filtered_string_view; // 2.8.1
-	auto split(const filtered_string_view& fsv,
-	           const filtered_string_view& tok) -> std::vector<filtered_string_view>; // 2.8.2
+	//	auto split(const filtered_string_view& fsv,
+	//	           const filtered_string_view& tok) -> std::vector<filtered_string_view>; // 2.8.2
 
 } // namespace fsv
 

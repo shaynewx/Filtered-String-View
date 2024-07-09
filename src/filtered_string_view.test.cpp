@@ -104,13 +104,14 @@ TEST_CASE("Move constructor transfers ownership correctly") {
 	REQUIRE(sv1.data() == nullptr);
 }
 
-// 2.5.2 ==运算符的重载
+// 2.5.2 复制任务
 TEST_CASE("filtered_string_view operator==") {
 	auto pred = [](const char& c) { return c == '4' || c == '2'; };
-	fsv::filtered_string_view sv1("42 bro", pred);
-	fsv::filtered_string_view sv2("42 bro", pred);
+	auto fsv1 = fsv::filtered_string_view{"42 bro", pred};
+	auto fsv2 = fsv::filtered_string_view{};
+	fsv2 = fsv1;
 
-	REQUIRE(sv1 == sv2);
+	REQUIRE(fsv1 == fsv2);
 }
 
 // 2.5.3 =运算符的重载
