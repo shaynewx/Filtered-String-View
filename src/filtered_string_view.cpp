@@ -199,5 +199,44 @@ namespace fsv {
 	}
 
 	// 2.8.2 Split
+	auto split(const filtered_string_view& fsv, const filtered_string_view& tok) -> std::vector<filtered_string_view> {
+		// 接收两个filtered_string_view作为参数，一个是fsv，一个是tok，返回一个vector
+		// 使用tok作为分隔符，将fsv切割成一系列子串并返回
+		// 通常来说，分隔符出现在两个strings的中间，也有可能会出现在字符串的开头或结尾，这种情况意味着分割后的结果可能包含空的filtered_string_view
+		// 如果fsv中不包含tok，或fsv为空，则返回的vector中只包含一个元素，即原始fsv的副本
+		// split类似python中的spilt()函数，但与python不同的是，但是fsv::split()可以接受空的分隔符
+		std::vector<filtered_string_view> result;
+		const char* start = fsv.data(); // 指针指向fsv第一个字符
+		const char* end = start + fsv.size(); // 指针指向fsv最后一个字符
+		const char* current = start; // 当前的字符指针
+		const char* tok_start = tok.data(); // 指针指向tok的第一个字符
+		const std::size_t tok_len = tok.size(); // tok的长度
+
+		if (tok.empty()) {
+			result.push_back(fsv);
+			return result;
+		}
+
+		while (current < end) {
+			const char* next = std::search(current, end, tok_start, tok_start + tok_len);
+			if (next != current) {
+				result.emplace_back(std::string(current, next), fsv.predicate()); // 正确的子字符串
+			}
+			else {
+				result.emplace_back("", fsv.predicate()); // 添加空视图
+			}
+
+			current = next + tok_len;
+			if (next == end) {
+				break; // 如果分隔符在末尾则停止循环
+			}
+		}
+
+		// 检查分隔符是否在字符串末尾
+		if (current == end && current != tok_start) {
+			result.emplace_back("", fsv.predicate());
+		}
+		return result;
+	}
 
 } // namespace fsv

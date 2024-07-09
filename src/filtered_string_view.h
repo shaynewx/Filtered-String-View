@@ -27,6 +27,8 @@ namespace fsv {
 		filtered_string_view(const filtered_string_view& other); // 2.4.6 拷贝构造函数
 		filtered_string_view(filtered_string_view&& other) noexcept; // 2.4.6 移动构造函数
 
+		//		filtered_string_view(const char* start, std::size_t length, filter predicate);
+
 		~filtered_string_view() = default; // 2.5 默认析构函数
 
 		// 运算符重载

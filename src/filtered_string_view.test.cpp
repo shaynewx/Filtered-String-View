@@ -275,3 +275,12 @@ TEST_CASE("Compose function combines multiple filters") {
 }
 
 // 2.8.2 Split
+TEST_CASE("2.8.2-1") {
+	auto interest = std::set<char>{'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', ' ', '/'};
+	auto sv = fsv::filtered_string_view{"0xDEADBEEF / 0xdeadbeef",
+	                                    [&interest](const char& c) { return interest.contains(c); }};
+	auto tok = fsv::filtered_string_view{" / "};
+	auto v = fsv::split(sv, tok);
+
+	std::cout << v[0] << " " << v[1];
+}
