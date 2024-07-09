@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <iterator>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -43,7 +44,7 @@ namespace fsv {
 	// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
 	filtered_string_view::filtered_string_view(const char* str, filter predicate)
 	: pointer_(str) // 直接指向原始 C 字符串
-	, length_(std::strlen(str)) // 开始时认为没有任何字符符合谓词条件
+	, length_(std::strlen(str)) // 使用 strlen 计算字符串长度
 	, predicate_(std::move(predicate)) {}
 
 	// 2.4.6 拷贝构造函数
@@ -63,7 +64,7 @@ namespace fsv {
 
 	// 2.5 类内部运算符重载的实现
 	// 2.5.2 =运算符的重载，用于复制任务
-	auto filtered_string_view::operator=(filtered_string_view& other) -> filtered_string_view& {
+	auto filtered_string_view::operator=(const filtered_string_view& other) -> filtered_string_view& {
 		if (this != &other) { // 检查自赋值
 			pointer_ = other.pointer_;
 			length_ = other.length_;
@@ -103,8 +104,6 @@ namespace fsv {
 			temp_ptr++; // 移动到下一个字符
 		}
 
-		// 如果索引n超出了符合条件的字符数，抛出异常
-		//		throw std::out_of_range("filtered_string_view::operator[]: Index out of range");
 		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
 	}
 
@@ -141,8 +140,6 @@ namespace fsv {
 			temp_ptr++;
 		}
 
-		// 理论上，这个异常不会被抛出，因为此前已经检查过
-		//		throw std::out_of_range("filtered_string_view::at: Index out of range");
 		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
 	}
 
@@ -195,12 +192,7 @@ namespace fsv {
 		 * 如果有一个过滤器是false，则符合谓词就会立即返回false并停止进一步检查
 		 * */
 		auto composite_filter = [filts](const char& c) -> bool {
-			for (auto& filt : filts) {
-				if (!filt(c)) {
-					return false; // 短路，如果有谓词是false则返回
-				}
-			}
-			return true; // 所有谓词都返回 true
+			return std::ranges::all_of(filts, [&](const auto& filt) { return filt(c); });
 		};
 
 		return filtered_string_view(fsv.data(), composite_filter);
