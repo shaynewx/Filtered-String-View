@@ -210,37 +210,51 @@ namespace fsv {
 	auto split(const filtered_string_view& fsv, const filtered_string_view& tok) -> std::vector<filtered_string_view> {
 		std::vector<filtered_string_view> result;
 
-		if (fsv.empty() || tok.empty()) {
+		if (fsv.data() == nullptr or tok.data() == nullptr) {
 			result.push_back(fsv);
 			return result;
 		}
 
-		const char* start = fsv.data();
-		const char* end = start + fsv.size();
-		const char* current = start;
-		const char* tok_start = tok.data();
-		const std::size_t tok_len = tok.size();
+		const char* start = fsv.data(); // 指向 fsv 的起始字符
+		const char* end = start + fsv.size(); // 指向 fsv 的末尾字符串的下一位
+		const char* current = start; // 用于遍历 fsv 的指针
+		const char* tok_start = tok.data(); // 指向分隔符 tok 的起始字符
+		const std::size_t tok_len = tok.size(); // 获取分隔符的长度
 
-		while (current < end) {
-			const char* next = std::search(current, end, tok_start, tok_start + tok_len);
+		while (current < end) { // 遍历 fsv
+			const char* next = std::search(current, end, tok_start, tok_start + tok_len); // 查找分隔符的位置
 
+			// 如果没有找到分隔符，说明当前段落是最后一部分
 			if (next == end) {
 				if (current != end) {
-					result.emplace_back(current, end - current, fsv.predicate());
+					result.emplace_back(current, end - current, fsv.predicate()); // 添加从当前位置到结束的部分
 				}
 				break;
 			}
 			else {
-				result.emplace_back(current, next - current, fsv.predicate());
-				current = next + tok_len; // Skip the token length
+				result.emplace_back(current, next - current, fsv.predicate()); // 添加从当前位置到分隔符位置的部分
+				current = next + tok_len; // 更新 current，跳过当前找到的分隔符
 			}
 		}
 
+		// 特殊情况，如 fsv 以分隔符结尾
 		if (current == end && end != start && *(end - tok_len) == *tok_start) {
 			result.emplace_back(end, 0, fsv.predicate());
 		}
-
 		return result;
 	}
+
+	// 2.8.3 substr
+	// 接收三个传入参数，fsv，pos和count
+	// 返回一个新的filtered_string_view，与fsv有同样的底层函数，但是呈现原字符串的“子字符串”视图
+	// 这个子字符串从pos开始，并且长度为rcount，rcount = count <= 0 ? size() - pos() : count
+	// 如果传入的 count 参数小于或等于 0，或者 count 大于从 pos 开始到字符串末尾的字符数，则 rcount 会被计算为从 pos
+	// 到原字符串末尾的长度（即 size() - pos()） 如果 count 大于 0 且小于或等于从 pos 开始到字符串末尾的字符数，rcount
+	// 将直接等于 count 也即这个子字符串提供了 fsv的 [pos, pos + rcount] 的视图 这意味着视图将包括原字符串中从位置 pos
+	// 开始的、连续 rcount 个满足谓词条件的字符
+	// 子字符串是有可能长度为0的，在这种情况下，返回的filtered_string_view是一个""
+	//	auto substr(const filtered_string_view& fsv, int pos, int count) -> filtered_string_view {
+	//		return filtered_string_view();
+	//	}
 
 } // namespace fsv

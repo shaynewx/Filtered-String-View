@@ -302,3 +302,5 @@ TEST_CASE("2.8.2-3") {
 
 	CHECK(v == expected);
 }
+
+// 2.8.3 substr
