@@ -284,3 +284,21 @@ TEST_CASE("2.8.2-1") {
 
 	std::cout << v[0] << " " << v[1];
 }
+
+TEST_CASE("2.8.2-2") {
+	auto sv = fsv::filtered_string_view{"xax"};
+	auto tok = fsv::filtered_string_view{"x"};
+	auto v = fsv::split(sv, tok);
+	auto expected = std::vector<fsv::filtered_string_view>{"", "a", ""};
+
+	CHECK(v == expected);
+}
+
+TEST_CASE("2.8.2-3") {
+	auto sv = fsv::filtered_string_view{"xx"};
+	auto tok = fsv::filtered_string_view{"x"};
+	auto v = fsv::split(sv, tok);
+	auto expected = std::vector<fsv::filtered_string_view>{"", "", ""};
+
+	CHECK(v == expected);
+}
