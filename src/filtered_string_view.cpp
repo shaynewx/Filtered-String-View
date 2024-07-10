@@ -210,7 +210,7 @@ namespace fsv {
 		}
 
 		const char* start = fsv.data(); // 指向 fsv 的起始字符
-		const char* end = start + fsv.size(); // 指向 fsv 的末尾字符串的下一位
+		const char* end = start + fsv.original_size(); // 指向 fsv 的末尾字符串的下一位
 		const char* current = start; // 用于遍历 fsv 的指针
 		const char* tok_start = tok.data(); // 指向分隔符 tok 的起始字符
 		const std::size_t tok_len = tok.size(); // 获取分隔符的长度
@@ -239,7 +239,7 @@ namespace fsv {
 	}
 
 	// 定义成员函数：返回初始字符串的长度
-	auto filtered_string_view::original_size() const -> size_t {
+	auto filtered_string_view::original_size() const -> std::size_t {
 		return length_;
 	}
 
@@ -293,5 +293,17 @@ namespace fsv {
 
 		return filtered_string_view(substr_start, static_cast<size_t>(current - substr_start), fsv.predicate());
 	}
+
+	// 2.9 迭代器 Iterator
+	// 允许调用者按照字符逐个迭代过滤出的单词，仅仅需要实现一个双向迭代器，且它应该支持双向迭代器支持的所有操作符
+	// 这个迭代器也是个常量迭代器，这意味这即使使用非常量的filtered_string_view，也不会改变underlying filtered_string
+	// 迭代器的 value_type 应为 char
+	// 迭代器的 reference 类型应该是 const char&，表示迭代器返回的是字符的常量引用。
+	// 迭代器的 pointer 类型应为 void。这通常表示迭代器不提供直接的指针访问功能。
+	// 迭代器应该有一个 public default constructor
+	// 迭代器不应允许对底层的字符串数据进行修改
+	// 您还可以定义私有的、特定于实现的构造函数
+	// 您可以假设任何改变 filtered_string_view 的方法都会使任何迭代器无效
+	// filtered_string_view 应该有一个 member type 为 iterator = const_iterator
 
 } // namespace fsv

@@ -40,12 +40,25 @@ namespace fsv {
 		                                       // 字符串类型转换运算符，允许将filtered_string_view显式转换为std::string
 
 		// 成员函数
-		auto original_size() const -> size_t; // 返回初始字符串的长度
+		auto original_size() const -> std::size_t; // 返回初始字符串的长度
 		auto at(int index) -> const char&; // 2.6.1 允许根据索引从过滤后的字符串中读取一个字符
 		auto size() const -> std::size_t; // 2.6.2 返回已过滤字符串的大小
 		auto empty() const -> bool; // 2.6.3 返回过滤后的字符串是否为空
 		auto data() const -> const char*; // 2.6.4 返回指向底层数据的指针
 		auto predicate() const -> const filter&; // 2.6.5 访问用于进行过滤的谓词
+
+		// 2.9 迭代器 Iterator
+		class const_iterator {
+		 public:
+			using iterator_category = std::bidirectional_iterator_tag;
+			using value_type = char;
+			using difference_type = ptrdiff_t;
+			using pointer = void; // Iterators typically use value_type*, but here it's void as per the requirements.
+			using reference = const char&;
+
+			const_iterator(); // Default constructor
+		 private:
+		};
 
 	 private:
 		const char* pointer_; // 指向原始字符串数据的常量指针
