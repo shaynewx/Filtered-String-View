@@ -252,5 +252,46 @@ namespace fsv {
 	// 将直接等于 count 也即这个子字符串提供了 fsv的 [pos, pos + rcount] 的视图 这意味着视图将包括原字符串中从位置 pos
 	// 开始的、连续 rcount 个满足谓词条件的字符
 	// 子字符串是有可能长度为0的，在这种情况下，返回的filtered_string_view是一个""
+	auto substr(const filtered_string_view& fsv, int pos, int count) -> filtered_string_view {
+		const char* start = fsv.data();
+		const char* end = start + fsv.original_size(); // 使用底层字符串的长度
+		const char* current = start;
+
+		// 确保 pos 不超过过滤后的字符串长度
+		auto total_size = static_cast<int>(fsv.size());
+		if (pos >= total_size) {
+			return filtered_string_view("", 0, fsv.predicate());
+		}
+
+		// 查找子字符串的起始位置
+		int filtered_pos = 0;
+		const char* substr_start = nullptr;
+
+		while (current != end && filtered_pos < pos) {
+			if (fsv.predicate()(*current)) {
+				++filtered_pos;
+			}
+			++current;
+		}
+
+		// 确保找到起始位置
+		if (current == end) {
+			return filtered_string_view("", 0, fsv.predicate());
+		}
+
+		substr_start = current;
+
+		// 计算 rcount，并查找子字符串的结束位置
+		int filtered_count = 0;
+
+		while (current != end && (count <= 0 || filtered_count < count)) {
+			if (fsv.predicate()(*current)) {
+				++filtered_count;
+			}
+			++current;
+		}
+
+		return filtered_string_view(substr_start, static_cast<size_t>(current - substr_start), fsv.predicate());
+	}
 
 } // namespace fsv
