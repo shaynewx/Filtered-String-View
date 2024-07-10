@@ -274,7 +274,7 @@ TEST_CASE("Compose function combines multiple filters") {
 	REQUIRE(ss.str() == "c/c++"); // 验证输出是否正确
 }
 
-// 2.8.2 Split
+// 2.8.2 split
 TEST_CASE("2.8.2-1") {
 	auto interest = std::set<char>{'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', ' ', '/'};
 	auto sv = fsv::filtered_string_view{"0xDEADBEEF / 0xdeadbeef",

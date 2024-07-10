@@ -1,13 +1,4 @@
 #include "./filtered_string_view.h"
-#include <algorithm>
-#include <compare>
-#include <cstring>
-#include <iostream>
-#include <iterator>
-#include <ranges>
-#include <stdexcept>
-#include <string>
-#include <utility>
 
 namespace fsv {
 
@@ -61,6 +52,18 @@ namespace fsv {
 		other.pointer_ = nullptr; // 确保原对象other的指针不再指向原始数据
 		other.length_ = 0; // 清空原对象other的长度
 	}
+
+	// 接受字符范围和谓词
+	filtered_string_view::filtered_string_view(const char* begin, const char* end, filter predicate)
+	: pointer_(begin)
+	, length_(static_cast<std::size_t>(std::distance(begin, end)))
+	, predicate_(std::move(predicate)) {}
+
+	// 接受字符开始、长度和谓词
+	filtered_string_view::filtered_string_view(const char* begin, std::size_t length, filter predicate)
+	: pointer_(begin) // 直接指向原始 C 字符串
+	, length_(length) // 使用 strlen 计算字符串长度
+	, predicate_(std::move(predicate)) {}
 
 	// 2.5 类内部运算符重载的实现
 	// 2.5.2 =运算符的重载，用于复制任务
@@ -199,43 +202,44 @@ namespace fsv {
 	}
 
 	// 2.8.2 Split
+	// 接收两个filtered_string_view作为参数，一个是fsv，一个是tok，返回一个vector
+	// 使用tok作为分隔符，将fsv切割成一系列子串并返回
+	// 通常来说，分隔符出现在两个strings的中间，也有可能会出现在字符串的开头或结尾，这种情况意味着分割后的结果可能包含空的filtered_string_view
+	// 如果fsv中不包含tok，或fsv为空，则返回的vector中只包含一个元素，即原始fsv的副本
+	// split类似python中的spilt()函数，但与python不同的是，但是fsv::split()可以接受空的分隔符
 	auto split(const filtered_string_view& fsv, const filtered_string_view& tok) -> std::vector<filtered_string_view> {
-		// 接收两个filtered_string_view作为参数，一个是fsv，一个是tok，返回一个vector
-		// 使用tok作为分隔符，将fsv切割成一系列子串并返回
-		// 通常来说，分隔符出现在两个strings的中间，也有可能会出现在字符串的开头或结尾，这种情况意味着分割后的结果可能包含空的filtered_string_view
-		// 如果fsv中不包含tok，或fsv为空，则返回的vector中只包含一个元素，即原始fsv的副本
-		// split类似python中的spilt()函数，但与python不同的是，但是fsv::split()可以接受空的分隔符
 		std::vector<filtered_string_view> result;
-		const char* start = fsv.data(); // 指针指向fsv第一个字符
-		const char* end = start + fsv.size(); // 指针指向fsv最后一个字符
-		const char* current = start; // 当前的字符指针
-		const char* tok_start = tok.data(); // 指针指向tok的第一个字符
-		const std::size_t tok_len = tok.size(); // tok的长度
 
-		if (tok.empty()) {
+		if (fsv.empty() || tok.empty()) {
 			result.push_back(fsv);
 			return result;
 		}
 
+		const char* start = fsv.data();
+		const char* end = start + fsv.size();
+		const char* current = start;
+		const char* tok_start = tok.data();
+		const std::size_t tok_len = tok.size();
+
 		while (current < end) {
 			const char* next = std::search(current, end, tok_start, tok_start + tok_len);
-			if (next != current) {
-				result.emplace_back(std::string(current, next), fsv.predicate()); // 正确的子字符串
+
+			if (next == end) {
+				if (current != end) {
+					result.emplace_back(current, end - current, fsv.predicate());
+				}
+				break;
 			}
 			else {
-				result.emplace_back("", fsv.predicate()); // 添加空视图
-			}
-
-			current = next + tok_len;
-			if (next == end) {
-				break; // 如果分隔符在末尾则停止循环
+				result.emplace_back(current, next - current, fsv.predicate());
+				current = next + tok_len; // Skip the token length
 			}
 		}
 
-		// 检查分隔符是否在字符串末尾
-		if (current == end && current != tok_start) {
-			result.emplace_back("", fsv.predicate());
+		if (current == end && end != start && *(end - tok_len) == *tok_start) {
+			result.emplace_back(end, 0, fsv.predicate());
 		}
+
 		return result;
 	}
 
