@@ -27,7 +27,6 @@ namespace fsv {
 		filtered_string_view(const filtered_string_view& other); // 2.4.6 拷贝构造函数
 		filtered_string_view(filtered_string_view&& other) noexcept; // 2.4.6 移动构造函数
 
-		filtered_string_view(const char* begin, const char* end, filter predicate); // 接受字符范围和谓词
 		filtered_string_view(const char* begin, std::size_t length, filter predicate); // 接受字符开始、长度和谓词
 
 		~filtered_string_view() = default; // 2.5 默认析构函数
@@ -41,6 +40,7 @@ namespace fsv {
 		                                       // 字符串类型转换运算符，允许将filtered_string_view显式转换为std::string
 
 		// 成员函数
+		auto original_size() const -> size_t; // 返回初始字符串的长度
 		auto at(int index) -> const char&; // 2.6.1 允许根据索引从过滤后的字符串中读取一个字符
 		auto size() const -> std::size_t; // 2.6.2 返回已过滤字符串的大小
 		auto empty() const -> bool; // 2.6.3 返回过滤后的字符串是否为空
@@ -64,7 +64,7 @@ namespace fsv {
 	auto compose(const filtered_string_view& fsv, const std::vector<filter>& filts) -> filtered_string_view; // 2.8.1
 	auto split(const filtered_string_view& fsv,
 	           const filtered_string_view& tok) -> std::vector<filtered_string_view>; // 2.8.2
-	//	auto substr(const filtered_string_view& fsv, int pos = 0, int count = 0) -> filtered_string_view; // 2.8.3
+	auto substr(const filtered_string_view& fsv, int pos = 0, int count = 0) -> filtered_string_view; // 2.8.3
 
 } // namespace fsv
 

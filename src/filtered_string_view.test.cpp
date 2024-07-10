@@ -304,3 +304,21 @@ TEST_CASE("2.8.2-3") {
 }
 
 // 2.8.3 substr
+// TEST_CASE("Substr function extracts part of the string correctly") {
+//	fsv::filtered_string_view sv{"Siberian Husky"};
+//	auto result = fsv::substr(sv, 9); // 提取从第9个字符开始的子字符串
+//	std::cout << result;
+//	std::stringstream ss;
+//	ss << result; // 使用 operator<< 进行输出
+//	REQUIRE(ss.str() == "Husky"); // 验证输出是否为 "Husky"
+//}
+//
+// TEST_CASE("Substr function with predicate filters and extracts upper case letters") {
+//	auto is_upper = [](const char& c) { return std::isupper(static_cast<unsigned char>(c)); };
+//	auto sv = fsv::filtered_string_view{"Sled Dog", is_upper};
+//	auto result = fsv::substr(sv, 0, 2);
+//	std::cout << result;
+//
+//}
+
+// 2.9 迭代器

@@ -53,12 +53,6 @@ namespace fsv {
 		other.length_ = 0; // 清空原对象other的长度
 	}
 
-	// 接受字符范围和谓词
-	filtered_string_view::filtered_string_view(const char* begin, const char* end, filter predicate)
-	: pointer_(begin)
-	, length_(static_cast<std::size_t>(std::distance(begin, end)))
-	, predicate_(std::move(predicate)) {}
-
 	// 接受字符开始、长度和谓词
 	filtered_string_view::filtered_string_view(const char* begin, std::size_t length, filter predicate)
 	: pointer_(begin) // 直接指向原始 C 字符串
@@ -244,6 +238,11 @@ namespace fsv {
 		return result;
 	}
 
+	// 定义成员函数：返回初始字符串的长度
+	auto filtered_string_view::original_size() const -> size_t {
+		return length_;
+	}
+
 	// 2.8.3 substr
 	// 接收三个传入参数，fsv，pos和count
 	// 返回一个新的filtered_string_view，与fsv有同样的底层函数，但是呈现原字符串的“子字符串”视图
@@ -253,8 +252,5 @@ namespace fsv {
 	// 将直接等于 count 也即这个子字符串提供了 fsv的 [pos, pos + rcount] 的视图 这意味着视图将包括原字符串中从位置 pos
 	// 开始的、连续 rcount 个满足谓词条件的字符
 	// 子字符串是有可能长度为0的，在这种情况下，返回的filtered_string_view是一个""
-	//	auto substr(const filtered_string_view& fsv, int pos, int count) -> filtered_string_view {
-	//		return filtered_string_view();
-	//	}
 
 } // namespace fsv
