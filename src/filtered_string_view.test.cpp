@@ -442,3 +442,33 @@ TEST_CASE("Substr function extracts middle part of the string") {
 }
 
 // 2.9 迭代器
+TEST_CASE("Default predicate iteration") {
+	auto print_via_iterator = [](const fsv::filtered_string_view& sv) {
+		std::ostringstream oss;
+		std::copy(sv.begin(), sv.end(), std::ostream_iterator<char>(oss, " "));
+		return oss.str();
+	};
+
+	fsv::filtered_string_view fsv1{"corgi"};
+	auto output = print_via_iterator(fsv1);
+	REQUIRE(output == "c o r g i ");
+}
+
+TEST_CASE("Predicate which removes lowercase vowels") {
+	auto fsv2 = fsv::filtered_string_view{"samoyed", [](const char& c) {
+		                                      return !(c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
+	                                      }};
+	auto it = fsv2.begin();
+	std::ostringstream oss;
+	oss << *it << *std::next(it) << *std::next(it, 2) << *std::next(it, 3);
+	REQUIRE(oss.str() == "smyd");
+}
+
+TEST_CASE("Reverse iteration") {
+	const std::string str = "tosa";
+	const auto s = fsv::filtered_string_view{str};
+	auto it = s.end();
+	std::ostringstream oss;
+	oss << *std::prev(it) << *std::prev(it, 2);
+	REQUIRE(oss.str() == "as");
+}
