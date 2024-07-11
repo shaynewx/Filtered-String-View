@@ -310,19 +310,19 @@ namespace fsv {
 	// 迭代器的初始实现
 	filtered_string_view::const_iterator::const_iterator() = default;
 
-	filtered_string_view::const_iterator::const_iterator(const char* ptr, const filter& pred)
+	filtered_string_view::const_iterator::const_iterator(const char* ptr, const filter& predicate)
 	: ptr_(ptr)
-	, pred_(&pred) {}
+	, predicate_(&predicate) {}
 
+	// 运算符重载
 	auto filtered_string_view::const_iterator::operator*() const -> reference {
 		return *ptr_;
 	}
 
-	// 运算符重载
 	auto filtered_string_view::const_iterator::operator++() -> const_iterator& {
 		do {
 			++ptr_;
-		} while (!(*pred_)(*ptr_));
+		} while (!(*predicate_)(*ptr_));
 		return *this;
 	}
 
@@ -330,6 +330,40 @@ namespace fsv {
 		const_iterator tmp = *this;
 		++(*this);
 		return tmp;
+	}
+
+	auto filtered_string_view::const_iterator::operator--() -> const_iterator& {
+		do {
+			--ptr_;
+		} while (!(*predicate_)(*ptr_));
+		return *this;
+	}
+
+	auto filtered_string_view::const_iterator::operator--(int) -> const_iterator {
+		const_iterator tmp = *this;
+		--(*this);
+		return tmp;
+	}
+
+	auto filtered_string_view::const_iterator::operator==(const const_iterator& other) const -> bool {
+		return ptr_ == other.ptr_;
+	}
+
+	auto filtered_string_view::const_iterator::operator!=(const const_iterator& other) const -> bool {
+		return ptr_ != other.ptr_;
+	}
+
+	// begin 和 end 的实现
+	auto filtered_string_view::begin() const -> const_iterator {
+		const char* ptr = pointer_;
+		while (ptr != pointer_ + length_ && !predicate_(*ptr)) {
+			++ptr;
+		}
+		return const_iterator(ptr, predicate_);
+	}
+
+	auto filtered_string_view::end() const -> const_iterator {
+		return const_iterator(pointer_ + length_, predicate_);
 	}
 
 } // namespace fsv

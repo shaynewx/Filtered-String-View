@@ -54,16 +54,20 @@ namespace fsv {
 			using reference = const char&;
 
 			const_iterator(); // Default constructor
-			const_iterator(const char* ptr, const filter& pred);
+			const_iterator(const char* ptr, const filter& predicate);
 
 			// 运算符重载
 			auto operator*() const -> reference;
 			auto operator++() -> const_iterator&;
 			auto operator++(int) -> const_iterator;
+			auto operator--() -> const_iterator&;
+			auto operator--(int) -> const_iterator;
+			auto operator==(const const_iterator& other) const -> bool;
+			auto operator!=(const const_iterator& other) const -> bool;
 
 		 private:
 			const char* ptr_;
-			const filter* pred_;
+			const filter* predicate_;
 		};
 
 		using iterator = const_iterator;
