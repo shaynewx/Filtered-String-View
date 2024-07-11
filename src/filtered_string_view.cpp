@@ -190,12 +190,10 @@ namespace fsv {
 
 	// 2.8 类外部的非成员函数
 	// 2.8.1 Compose
+	// 接收一个fsv对象和一个过滤谓词的vector，返回一个新的fsv对象，
+	// 将所有过滤谓词用and组合，只有当所有谓词返回true时才返回true，也即所有过滤器会过滤相同字符
+	// 但是只要有一个谓词函数是false，则这个新的谓词函数就会短路，且立即返回false并停止进一步检查（类似 logical AND）
 	auto compose(const filtered_string_view& fsv, const std::vector<filter>& filts) -> filtered_string_view {
-		/*
-		 * 接收一个fsv对象和一个过滤谓词的vector，返回一个新的fsv对象，
-		 * 将所有过滤谓词用and组合，只有当所有谓词返回true时才返回true，也即所有过滤器会过滤相同字符
-		 * 如果有一个过滤器是false，则符合谓词就会立即返回false并停止进一步检查
-		 * */
 		auto composite_filter = [filts](const char& c) -> bool {
 			return std::ranges::all_of(filts, [&](const auto& filt) { return filt(c); });
 		};
@@ -212,6 +210,7 @@ namespace fsv {
 	auto split(const filtered_string_view& fsv, const filtered_string_view& tok) -> std::vector<filtered_string_view> {
 		std::vector<filtered_string_view> result;
 
+		// 如果fsv为空或者tok为空，返回fsv副本
 		if (fsv.data() == nullptr or tok.data() == nullptr) {
 			result.push_back(fsv);
 			return result;
@@ -226,8 +225,7 @@ namespace fsv {
 		while (current < end) { // 遍历 fsv
 			const char* next = std::search(current, end, tok_start, tok_start + tok_len); // 查找分隔符的位置
 
-			// 如果没有找到分隔符，说明当前段落是最后一部分
-			if (next == end) {
+			if (next == end) { // 如果没有找到分隔符（fsv不包含tok），说明当前段落是最后一部分
 				if (current != end) {
 					result.emplace_back(current, end - current, fsv.predicate()); // 添加从当前位置到结束的部分
 				}

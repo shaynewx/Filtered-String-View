@@ -191,12 +191,15 @@ TEST_CASE("filtered_string_view invalid access") {
 TEST_CASE("filtered_string_view size of filtered strings") {
 	auto sv = fsv::filtered_string_view{"Maltese"};
 
-	REQUIRE(sv.size() == 7); // "Toy Poodle" has four 'o's
+	REQUIRE(sv.size() == 7);
+	REQUIRE(static_cast<std::string>(sv) == "Maltese");
 }
 
 TEST_CASE("filtered_string_view size of filtered strings2") {
 	auto sv = fsv::filtered_string_view{"Toy Poodle", [](const char& c) { return c == 'o'; }};
-	REQUIRE(sv.size() == 3); // "Toy Poodle" has four 'o's
+
+	REQUIRE(sv.size() == 3);
+	REQUIRE(static_cast<std::string>(sv) == "ooo");
 }
 
 // 2.6.3 返回过滤后的字符串是否为空
@@ -205,7 +208,8 @@ TEST_CASE("Empty check for non-empty filtered string view1") {
 	auto empty_sv = fsv::filtered_string_view{};
 	std::cout << std::boolalpha << sv.empty() << ' ' << empty_sv.empty();
 
-	REQUIRE_FALSE(sv.empty()); // 应该返回 false，因为字符串非空
+	REQUIRE_FALSE(sv.empty());
+	REQUIRE(empty_sv.empty());
 }
 
 TEST_CASE("Empty check for empty filtered string view2") {
@@ -219,6 +223,8 @@ TEST_CASE("Empty check for empty filtered string view2") {
 TEST_CASE("Data ignores filtering and outputs the entire string") {
 	auto s = "Sum 42";
 	auto sv = fsv::filtered_string_view{s, [](const char& /* c */) { return false; }};
+
+	REQUIRE(sv.empty()); // sv为空，但是sv的底层数据不变
 	for (auto ptr = sv.data(); *ptr; ++ptr) {
 		std::cout << *ptr;
 	}
@@ -262,6 +268,9 @@ TEST_CASE("Spaceship operator for filtered_string_view") {
 	auto lo = fsv::filtered_string_view{"aaa"};
 	auto hi = fsv::filtered_string_view{"zzz"};
 
+	std::cout << std::boolalpha << (lo < hi) << ' ' << (lo <= hi) << ' ' << (lo > hi) << ' ' << (lo >= hi) << ' '
+	          << (lo <=> hi == std::strong_ordering::less);
+
 	REQUIRE((lo < hi) == true);
 	REQUIRE((lo <= hi) == true);
 	REQUIRE((lo > hi) == false);
@@ -296,6 +305,20 @@ TEST_CASE("Compose function combines multiple filters") {
 	REQUIRE(ss.str() == "c/c++"); // 验证输出是否正确
 }
 
+TEST_CASE("Compose function with all true filters") {
+	fsv::filtered_string_view best_languages{"c / c++"};
+	auto vf = std::vector<fsv::filter>{[](const char& /* c */) { return true; },
+	                                   [](const char& /* c */) { return true; },
+	                                   [](const char& /* c */) { return true; }};
+
+	auto sv = fsv::compose(best_languages, vf);
+	std::cout << sv;
+
+	std::stringstream ss;
+	ss << sv; // 使用 operator<< 进行输出
+	REQUIRE(ss.str() == "c / c++"); // 验证输出是否正确
+}
+
 // 2.8.2 split
 TEST_CASE("2.8.2-1") {
 	auto interest = std::set<char>{'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', ' ', '/'};
@@ -321,6 +344,24 @@ TEST_CASE("2.8.2-3") {
 	auto tok = fsv::filtered_string_view{"x"};
 	auto v = fsv::split(sv, tok);
 	auto expected = std::vector<fsv::filtered_string_view>{"", "", ""};
+
+	CHECK(v == expected);
+}
+
+TEST_CASE("Split with string ending with delimiter") {
+	auto sv = fsv::filtered_string_view{"hellox"};
+	auto tok = fsv::filtered_string_view{"x"};
+	auto v = fsv::split(sv, tok);
+	auto expected = std::vector<fsv::filtered_string_view>{"hello", ""};
+
+	CHECK(v == expected);
+}
+
+TEST_CASE("Split with string starting with delimiter") {
+	auto sv = fsv::filtered_string_view{" xhello"};
+	auto tok = fsv::filtered_string_view{"x"};
+	auto v = fsv::split(sv, tok);
+	auto expected = std::vector<fsv::filtered_string_view>{" ", "hello"};
 
 	CHECK(v == expected);
 }
