@@ -67,7 +67,7 @@ namespace fsv {
 		static const char default_char; // 用于无效索引情况的默认字符
 	};
 
-	// 类外部的运算符重载
+	// 2.7 类外部的运算符重载
 	auto operator==(const filtered_string_view& lhs, const filtered_string_view& rhs) -> bool; // 2.7.1. ==运算符的重载
 	auto operator<=>(const filtered_string_view& lhs,
 	                 const filtered_string_view& rhs) -> std::strong_ordering; // 2.7.2 <=>运算符的重载

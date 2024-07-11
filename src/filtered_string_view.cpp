@@ -1,4 +1,5 @@
 #include "./filtered_string_view.h"
+#include <sstream>
 
 namespace fsv {
 
@@ -121,7 +122,9 @@ namespace fsv {
 	// 2.6.1 at：允许根据索引从过滤后的字符串中读取一个字符
 	auto filtered_string_view::at(int index) -> const char& {
 		if (index < 0 || index >= static_cast<int>(size())) {
-			throw std::domain_error("filtered_string_view::at: Invalid index");
+			std::ostringstream oss;
+			oss << "filtered_string_view::at(" << index << "): invalid index";
+			throw std::domain_error(oss.str());
 		}
 
 		const char* temp_ptr = pointer_; // 初始化指针，指向底层字符串数据的起始位置
@@ -158,6 +161,11 @@ namespace fsv {
 	// 2.6.5 访问用于进行过滤的谓词
 	auto filtered_string_view::predicate() const -> const filter& {
 		return predicate_;
+	}
+
+	// 返回初始字符串的长度
+	auto filtered_string_view::original_size() const -> std::size_t {
+		return length_;
 	}
 
 	// 2.7.1. ==运算符的重载，按字典顺序比较两个filtered_string_view字符串是否相等
@@ -236,11 +244,6 @@ namespace fsv {
 			result.emplace_back(end, 0, fsv.predicate());
 		}
 		return result;
-	}
-
-	// 定义成员函数：返回初始字符串的长度
-	auto filtered_string_view::original_size() const -> std::size_t {
-		return length_;
 	}
 
 	// 2.8.3 substr
