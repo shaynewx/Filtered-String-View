@@ -423,4 +423,22 @@ TEST_CASE("Substr function extracts with length exceeding string length") {
 	REQUIRE(ss.str() == "ie"); // 验证输出是否为 "ie"
 }
 
+TEST_CASE("Substr function handles empty string") {
+	fsv::filtered_string_view sv{""};
+	auto result = fsv::substr(sv, 0, 5); // 从空字符串提取子字符串
+	std::cout << result;
+	std::stringstream ss;
+	ss << result; // 使用 operator<< 进行输出
+	REQUIRE(ss.str() == ""); // 验证输出是否为空字符串
+}
+
+TEST_CASE("Substr function extracts middle part of the string") {
+	fsv::filtered_string_view sv{"Alaskan Malamute"};
+	auto result = fsv::substr(sv, 8, 4); // 提取从第8个字符开始的4个字符
+	std::cout << result;
+	std::stringstream ss;
+	ss << result; // 使用 operator<< 进行输出
+	REQUIRE(ss.str() == "Mala"); // 验证输出是否为 "Mala"
+}
+
 // 2.9 迭代器

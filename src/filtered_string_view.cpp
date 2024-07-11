@@ -260,8 +260,7 @@ namespace fsv {
 		const char* current = start;
 
 		// 确保 pos 不超过过滤后的字符串长度
-		auto total_size = static_cast<int>(fsv.size());
-		if (pos >= total_size) {
+		if (pos >= static_cast<int>(fsv.size())) {
 			return filtered_string_view("", 0, fsv.predicate());
 		}
 
@@ -269,7 +268,7 @@ namespace fsv {
 		int filtered_pos = 0;
 		const char* substr_start = nullptr;
 
-		while (current != end && filtered_pos < pos) {
+		while (current != end and filtered_pos < pos) {
 			if (fsv.predicate()(*current)) {
 				++filtered_pos;
 			}
@@ -286,7 +285,7 @@ namespace fsv {
 		// 计算 rcount，并查找子字符串的结束位置
 		int filtered_count = 0;
 
-		while (current != end && (count <= 0 || filtered_count < count)) {
+		while (current != end and (count <= 0 || filtered_count < count)) {
 			if (fsv.predicate()(*current)) {
 				++filtered_count;
 			}
