@@ -312,7 +312,11 @@ namespace fsv {
 
 	filtered_string_view::const_iterator::const_iterator(const char* ptr, const filter& predicate)
 	: ptr_(ptr)
-	, predicate_(&predicate) {}
+	, predicate_(&predicate) {
+		while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)) {
+			++ptr_;
+		}
+	}
 
 	// 运算符重载
 	auto filtered_string_view::const_iterator::operator*() const -> reference {
@@ -322,7 +326,7 @@ namespace fsv {
 	auto filtered_string_view::const_iterator::operator++() -> const_iterator& {
 		do {
 			++ptr_;
-		} while (!(*predicate_)(*ptr_));
+		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // 跳过所有不符合谓词条件的字符
 		return *this;
 	}
 
@@ -335,7 +339,7 @@ namespace fsv {
 	auto filtered_string_view::const_iterator::operator--() -> const_iterator& {
 		do {
 			--ptr_;
-		} while (!(*predicate_)(*ptr_));
+		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // 跳过所有不符合谓词条件的字符
 		return *this;
 	}
 

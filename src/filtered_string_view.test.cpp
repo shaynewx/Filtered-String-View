@@ -1,6 +1,7 @@
 #include "./filtered_string_view.h"
 
 #include <catch2/catch.hpp>
+#include <functional>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -449,7 +450,7 @@ TEST_CASE("Default predicate iteration") {
 		return oss.str();
 	};
 
-	fsv::filtered_string_view fsv1{"corgi"};
+	auto fsv1 = fsv::filtered_string_view{"corgi"};
 	auto output = print_via_iterator(fsv1);
 	REQUIRE(output == "c o r g i ");
 }
@@ -471,4 +472,45 @@ TEST_CASE("Reverse iteration") {
 	std::ostringstream oss;
 	oss << *std::prev(it) << *std::prev(it, 2);
 	REQUIRE(oss.str() == "as");
+}
+
+// 示例谓词：检查字符是否是字母
+bool is_alpha(const char& ch) {
+	return std::isalpha(static_cast<unsigned char>(ch));
+}
+
+TEST_CASE("Prefix increment operator") {
+	const char* str = "123abc456";
+	std::function<bool(const char&)> predicate = is_alpha;
+
+	auto fsv = fsv::filtered_string_view(str, predicate);
+	auto it = fsv.begin();
+	REQUIRE(it != fsv.end()); // 确保迭代器不在末尾
+	CHECK(*it == 'a'); // 检查第一个符合谓词条件的字符
+	++it;
+	REQUIRE(it != fsv.end());
+	CHECK(*it == 'b'); // 检查第二个符合谓词条件的字符
+
+	++it;
+	REQUIRE(it != fsv.end());
+	CHECK(*it == 'c'); // 检查第三个符合谓词条件的字符
+}
+
+TEST_CASE("Postfix increment operator") {
+	const char* str = "123abc456";
+	std::function<bool(const char&)> predicate = is_alpha;
+
+	auto fsv = fsv::filtered_string_view(str, predicate);
+	auto it = fsv.begin();
+
+	REQUIRE(it != fsv.end()); // 确保迭代器不在末尾
+	CHECK(*it == 'a'); // 检查第一个符合谓词条件的字符
+
+	it++;
+	REQUIRE(it != fsv.end());
+	CHECK(*it == 'b'); // 检查第二个符合谓词条件的字符
+
+	it++;
+	REQUIRE(it != fsv.end());
+	CHECK(*it == 'c'); // 检查第三个符合谓词条件的字符
 }
