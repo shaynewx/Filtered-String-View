@@ -320,7 +320,7 @@ TEST_CASE("Compose function with all true filters") {
 }
 
 // 2.8.2 split
-TEST_CASE("2.8.2-1") {
+TEST_CASE("Split with mixed case and special characters") {
 	auto interest = std::set<char>{'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', ' ', '/'};
 	auto sv = fsv::filtered_string_view{"0xDEADBEEF / 0xdeadbeef",
 	                                    [&interest](const char& c) { return interest.contains(c); }};
@@ -330,7 +330,7 @@ TEST_CASE("2.8.2-1") {
 	std::cout << v[0] << " " << v[1];
 }
 
-TEST_CASE("2.8.2-2") {
+TEST_CASE("Split with single character delimiter and non-empty segments") {
 	auto sv = fsv::filtered_string_view{"xax"};
 	auto tok = fsv::filtered_string_view{"x"};
 	auto v = fsv::split(sv, tok);
@@ -339,11 +339,20 @@ TEST_CASE("2.8.2-2") {
 	CHECK(v == expected);
 }
 
-TEST_CASE("2.8.2-3") {
+TEST_CASE("Split with single character delimiter and empty segments") {
 	auto sv = fsv::filtered_string_view{"xx"};
 	auto tok = fsv::filtered_string_view{"x"};
 	auto v = fsv::split(sv, tok);
 	auto expected = std::vector<fsv::filtered_string_view>{"", "", ""};
+
+	CHECK(v == expected);
+}
+
+TEST_CASE("Split with empty string") {
+	auto sv = fsv::filtered_string_view{""};
+	auto tok = fsv::filtered_string_view{" "};
+	auto v = fsv::split(sv, tok);
+	auto expected = std::vector<fsv::filtered_string_view>{""};
 
 	CHECK(v == expected);
 }
@@ -362,6 +371,15 @@ TEST_CASE("Split with string starting with delimiter") {
 	auto tok = fsv::filtered_string_view{"x"};
 	auto v = fsv::split(sv, tok);
 	auto expected = std::vector<fsv::filtered_string_view>{" ", "hello"};
+
+	CHECK(v == expected);
+}
+
+TEST_CASE("Split with no delimiter in string") {
+	auto sv = fsv::filtered_string_view{"hello"};
+	auto tok = fsv::filtered_string_view{"x"};
+	auto v = fsv::split(sv, tok);
+	auto expected = std::vector<fsv::filtered_string_view>{"hello"};
 
 	CHECK(v == expected);
 }
@@ -385,6 +403,24 @@ TEST_CASE("Substr function with predicate filters and extracts upper case letter
 	std::stringstream ss;
 	ss << result; // 使用 operator<< 进行输出
 	REQUIRE(ss.str() == "SD"); // 验证输出是否为 "SD"
+}
+
+TEST_CASE("Substr function extracts from the beginning of the string") {
+	fsv::filtered_string_view sv{"Samoyed"};
+	auto result = fsv::substr(sv, 0, 3); // 提取从第0个字符开始的3个字符
+	std::cout << result;
+	std::stringstream ss;
+	ss << result; // 使用 operator<< 进行输出
+	REQUIRE(ss.str() == "Sam"); // 验证输出是否为 "Sam"
+}
+
+TEST_CASE("Substr function extracts with length exceeding string length") {
+	fsv::filtered_string_view sv{"Collie"};
+	auto result = fsv::substr(sv, 4, 10); // 提取从第4个字符开始的10个字符
+	std::cout << result;
+	std::stringstream ss;
+	ss << result; // 使用 operator<< 进行输出
+	REQUIRE(ss.str() == "ie"); // 验证输出是否为 "ie"
 }
 
 // 2.9 迭代器

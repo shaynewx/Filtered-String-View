@@ -211,7 +211,7 @@ namespace fsv {
 		std::vector<filtered_string_view> result;
 
 		// 如果fsv为空或者tok为空，返回fsv副本
-		if (fsv.data() == nullptr or tok.data() == nullptr) {
+		if (fsv.empty() or tok.empty()) {
 			result.push_back(fsv);
 			return result;
 		}
@@ -248,10 +248,11 @@ namespace fsv {
 	// 接收三个传入参数，fsv，pos和count
 	// 返回一个新的filtered_string_view，与fsv有同样的底层函数，但是呈现原字符串的“子字符串”视图
 	// 这个子字符串从pos开始，并且长度为rcount，rcount = count <= 0 ? size() - pos() : count
-	// 如果传入的 count 参数小于或等于 0，或者 count 大于从 pos 开始到字符串末尾的字符数，则 rcount 会被计算为从 pos
-	// 到原字符串末尾的长度（即 size() - pos()） 如果 count 大于 0 且小于或等于从 pos 开始到字符串末尾的字符数，rcount
-	// 将直接等于 count 也即这个子字符串提供了 fsv的 [pos, pos + rcount] 的视图 这意味着视图将包括原字符串中从位置 pos
-	// 开始的、连续 rcount 个满足谓词条件的字符
+	// 如果传入的 count 参数小于或等于 0，或者 count 大于从 pos 开始到字符串末尾的字符数，
+	// 则 rcount 会被计算为从 pos到原字符串末尾的长度（即 size() - pos()。
+	// 如果 count 大于 0 且小于或等于从 pos 开始到字符串末尾的字符数，
+	// rcount将直接等于 count 也即这个子字符串提供了 fsv的 [pos, pos + rcount] 的视图
+	// 这意味着视图将包括原字符串中从位置 pos开始的、连续 rcount 个满足谓词条件的字符
 	// 子字符串是有可能长度为0的，在这种情况下，返回的filtered_string_view是一个""
 	auto substr(const filtered_string_view& fsv, int pos, int count) -> filtered_string_view {
 		const char* start = fsv.data();
