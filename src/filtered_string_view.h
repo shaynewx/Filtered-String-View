@@ -26,9 +26,7 @@ namespace fsv {
 		filtered_string_view(const char* str, filter predicate); // 2.4.5 带有谓词的以空字符结尾的字符串构造函数
 		filtered_string_view(const filtered_string_view& other); // 2.4.6 拷贝构造函数
 		filtered_string_view(filtered_string_view&& other) noexcept; // 2.4.6 移动构造函数
-
 		filtered_string_view(const char* begin, std::size_t length, filter predicate); // 接受字符开始、长度和谓词
-
 		~filtered_string_view() = default; // 2.5 默认析构函数
 
 		// 运算符重载
@@ -36,8 +34,7 @@ namespace fsv {
 		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 =运算符的重载
 
 		auto operator[](int n) const -> const char&; // 2.5.4 []运算符的重载
-		explicit operator std::string() const; // 2.5.5
-		                                       // 字符串类型转换运算符，允许将filtered_string_view显式转换为std::string
+		explicit operator std::string() const; // 2.5.5  字符串类型转换运算符，允许将fsv显式转换为std::string
 
 		// 成员函数
 		auto original_size() const -> std::size_t; // 返回初始字符串的长度
@@ -53,12 +50,25 @@ namespace fsv {
 			using iterator_category = std::bidirectional_iterator_tag;
 			using value_type = char;
 			using difference_type = ptrdiff_t;
-			using pointer = void; // Iterators typically use value_type*, but here it's void as per the requirements.
+			using pointer = void;
 			using reference = const char&;
 
 			const_iterator(); // Default constructor
+			const_iterator(const char* ptr, const filter& pred);
+
+			// 运算符重载
+			auto operator*() const -> reference;
+			auto operator++() -> const_iterator&;
+			auto operator++(int) -> const_iterator;
+
 		 private:
+			const char* ptr_;
+			const filter* pred_;
 		};
+
+		using iterator = const_iterator;
+		auto begin() const -> const_iterator;
+		auto end() const -> const_iterator;
 
 	 private:
 		const char* pointer_; // 指向原始字符串数据的常量指针

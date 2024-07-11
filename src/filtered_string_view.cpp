@@ -307,4 +307,29 @@ namespace fsv {
 	// 您可以假设任何改变 filtered_string_view 的方法都会使任何迭代器无效
 	// filtered_string_view 应该有一个 member type 为 iterator = const_iterator
 
+	// 迭代器的初始实现
+	filtered_string_view::const_iterator::const_iterator() = default;
+
+	filtered_string_view::const_iterator::const_iterator(const char* ptr, const filter& pred)
+	: ptr_(ptr)
+	, pred_(&pred) {}
+
+	auto filtered_string_view::const_iterator::operator*() const -> reference {
+		return *ptr_;
+	}
+
+	// 运算符重载
+	auto filtered_string_view::const_iterator::operator++() -> const_iterator& {
+		do {
+			++ptr_;
+		} while (!(*pred_)(*ptr_));
+		return *this;
+	}
+
+	auto filtered_string_view::const_iterator::operator++(int) -> const_iterator {
+		const_iterator tmp = *this;
+		++(*this);
+		return tmp;
+	}
+
 } // namespace fsv
