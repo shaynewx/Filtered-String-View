@@ -29,38 +29,38 @@ namespace fsv {
 
 	// 2.4.4 Implicit Null-Terminated String Constructor
 	filtered_string_view::filtered_string_view(const char* str)
-	: pointer_(str) // 直接指向传入的 C 风格字符串
-	, length_(std::strlen(str)) // 使用 strlen 计算字符串长度，（字符串以 null 结尾）
-	, predicate_(default_predicate) {} // 使用默认的总是返回 true 的谓词
+	: pointer_(str)
+	, length_(std::strlen(str)) // Use strlen to calculate the length of str
+	, predicate_(default_predicate) {}
 
 	// 2.4.5 Null-Terminated String with Predicate Constructor
 	filtered_string_view::filtered_string_view(const char* str, filter predicate)
-	: pointer_(str) // 直接指向原始 C 字符串
-	, length_(std::strlen(str)) // 使用 strlen 计算字符串长度
+	: pointer_(str)
+	, length_(std::strlen(str)) // Use strlen to calculate the length of str
 	, predicate_(std::move(predicate)) {}
 
 	// 2.4.6 Copy Constructor
 	filtered_string_view::filtered_string_view(const filtered_string_view& other)
 	: pointer_(other.pointer_)
 	, length_(other.length_)
-	, predicate_(other.predicate_) {} // 由于 filtered_string_view 不拥有数据，直接复制other的数据即可
+	, predicate_(other.predicate_) {}
 
 	// 2.4.6 Move Constructor
 	filtered_string_view::filtered_string_view(filtered_string_view&& other) noexcept
 	: pointer_(other.pointer_)
 	, length_(other.length_)
-	, predicate_(std::move(other.predicate_)) { // 将原对象other的资源转移给新对象
-		other.pointer_ = nullptr; // 确保原对象other的指针不再指向原始数据
-		other.length_ = 0; // 清空原对象other的长度
+	, predicate_(std::move(other.predicate_)) { // Transfer other's resources to the new object
+		other.pointer_ = nullptr; // Make sure the pointer no longer points to other
+		other.length_ = 0; // Clear the length of other
 	}
 
 	// 2.5 Member Operators
 	// 2.5.2 Overloading of = for copy asm
 	auto filtered_string_view::operator=(const filtered_string_view& other) -> filtered_string_view& {
-		if (this != &other) { // 检查自赋值
+		if (this != &other) { // Check for self-assignment
 			pointer_ = other.pointer_;
 			length_ = other.length_;
-			predicate_ = other.predicate_; // 谓词的赋值通常是安全的
+			predicate_ = other.predicate_;
 		}
 		return *this;
 	}
@@ -69,11 +69,10 @@ namespace fsv {
 		if (this != &other) {
 			pointer_ = other.pointer_;
 			length_ = other.length_;
-			predicate_ = std::move(other.predicate_); // 移动谓词
+			predicate_ = std::move(other.predicate_); // Transfer other's resources to the new object
 
-			// 将移动来源对象置于安全状态
-			other.pointer_ = nullptr;
-			other.length_ = 0;
+			other.pointer_ = nullptr; // Make sure the pointer no longer points to other
+			other.length_ = 0; // Clear the length of other
 		}
 		return *this;
 	}
@@ -83,30 +82,28 @@ namespace fsv {
 
 	// 2.5.4 [Overloading of [] to read the character at a specific index position in fsc
 	auto filtered_string_view::operator[](int n) const -> const char& {
-		const char* temp_ptr = pointer_; // 从原始数据开始
-		int count = 0; // 跟踪已经遇到的符合谓词条件的字符数
+		const char* temp_ptr = pointer_;
+		int count = 0;
 
-		while (*temp_ptr != '\0') { // 循环遍历字符串
-			if (predicate_(*temp_ptr)) { // 检查当前字符是否满足过滤条件
-				if (count == n) { // 当找到第n个符合条件的字符时返回
-					return *temp_ptr;
+		while (*temp_ptr != '\0') { // Loop through the underlying data
+			if (predicate_(*temp_ptr)) { // Check whether the current character meets the filtering
+				if (count == n) {
+					return *temp_ptr; // Return when the nth matching character is found
 				}
 				count++;
 			}
-			temp_ptr++; // 移动到下一个字符
+			temp_ptr++;
 		}
 
-		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
+		return default_char; // Return the default character if index n exceeds the number of qualifying characters
 	}
 
 	// 2.5.5 Overloading of std::string, allow the
 	filtered_string_view::operator std::string() const {
-		std::string result; // 初始化输出结果
-		result.reserve(length_); // 结果的最大可能长度为原字符串的长度
+		std::string result;
+		result.reserve(length_); // The maximum length of the result is the length of the original string
 
-		// 使用 copy_if 和 back_inserter 来将所有符合谓词条件的字符添加到 result 字符串中
-		// 从 pointer_ 指向的起始位置开始，到 pointer_ 加上 length_ 的位置结束
-		// 在目标容器 result（一个 std::string 对象）的末尾添加符合过滤条件的元素
+		// Use copy_if and back_inserter to add all characters that match the predicate to the result string
 		std::copy_if(pointer_, pointer_ + length_, std::back_inserter(result), predicate_);
 
 		return result;
@@ -121,12 +118,12 @@ namespace fsv {
 			throw std::domain_error(oss.str());
 		}
 
-		const char* temp_ptr = pointer_; // 初始化指针，指向底层字符串数据的起始位置
-		int count = 0; // 记录遇到符合谓词条件的字符的数量
+		const char* temp_ptr = pointer_; // Initialize the pointer to the starting position of the underlying data
+		int count = 0; // Record the number of characters that meet the predicate condition
 
-		while (*temp_ptr != '\0') { // 循环遍历底层字符串
-			if (predicate_(*temp_ptr)) { // 检查当前字符是否满足过滤条件
-				if (count == index) { // 找到索引 index 所指的符合条件的字符时返回
+		while (*temp_ptr != '\0') { // Loop through the underlying data
+			if (predicate_(*temp_ptr)) { // Check whether the current character meets the filtering
+				if (count == index) { // Return when the character matching the criteria is found.
 					return *temp_ptr;
 				}
 				count++;
@@ -134,7 +131,7 @@ namespace fsv {
 			temp_ptr++;
 		}
 
-		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
+		return default_char; // Return the default character if index n exceeds the number of qualifying characters
 	}
 
 	// 2.6.2 Return the size of the fsv
@@ -169,20 +166,22 @@ namespace fsv {
 
 	// 2.7.2 Overloading of <=>
 	auto operator<=>(const filtered_string_view& lhs, const filtered_string_view& rhs) -> std::strong_ordering {
-		auto lhs_str = static_cast<std::string>(lhs); // 将 lhs 转换为 string
-		auto rhs_str = static_cast<std::string>(rhs); // 将 rhs 转换为 string
-		return lhs_str.compare(rhs_str) <=> 0; // 使用标准库的比较功能和C++20的太空船运算符
+		auto lhs_str = static_cast<std::string>(lhs); // Convert lhs to a string
+		auto rhs_str = static_cast<std::string>(rhs); // Convert rhs to a string
+
+		// Use the standard library's comparison functions and C++20's spaceship operator
+		return lhs_str.compare(rhs_str) <=> 0;
 	}
 
 	// 2.7.3 Overloading of <<
 	std::ostream& operator<<(std::ostream& os, const filtered_string_view& fsv) {
 		for (std::size_t i = 0; i < fsv.size(); ++i) {
-			os << fsv[static_cast<int>(i)]; // 输出每个过滤后的字符
+			os << fsv[static_cast<int>(i)]; // Output each filtered character
 		}
 		return os;
 	}
 
-	// 2.8 类外部的非成员函数
+	// 2.8 Non-Member Utility Functions
 	// 2.8.1 Compose
 	// 接收一个fsv对象和一个过滤谓词的vector，返回一个新的fsv对象，
 	// 将所有过滤谓词用and组合，只有当所有谓词返回true时才返回true，也即所有过滤器会过滤相同字符
