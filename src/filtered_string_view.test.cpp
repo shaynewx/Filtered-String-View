@@ -553,3 +553,37 @@ TEST_CASE("Const reverse begin and end") {
 	CHECK(v[0] == 'l');
 	CHECK(v[1] == 'm');
 }
+
+TEST_CASE("Using reverse_iterator") {
+	const auto s = fsv::filtered_string_view{"abcdefg", [](const char& c) { return c != 'c'; }};
+	fsv::filtered_string_view::reverse_iterator rit = s.rbegin();
+
+	REQUIRE(*rit == 'g');
+	++rit;
+	REQUIRE(*rit == 'f');
+	++rit;
+	REQUIRE(*rit == 'e');
+	++rit;
+	REQUIRE(*rit == 'd');
+	++rit;
+	REQUIRE(*rit == 'b');
+	++rit;
+	REQUIRE(*rit == 'a');
+}
+
+TEST_CASE("Using const_reverse_iterator") {
+	const auto s = fsv::filtered_string_view{"hijklmn", [](const char& c) { return c != 'k'; }};
+	fsv::filtered_string_view::const_reverse_iterator crit = s.crbegin();
+
+	REQUIRE(*crit == 'n');
+	++crit;
+	REQUIRE(*crit == 'm');
+	++crit;
+	REQUIRE(*crit == 'l');
+	++crit;
+	REQUIRE(*crit == 'j');
+	++crit;
+	REQUIRE(*crit == 'i');
+	++crit;
+	REQUIRE(*crit == 'h');
+}
