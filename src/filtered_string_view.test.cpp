@@ -534,3 +534,22 @@ TEST_CASE("Reverse filter string and store in vector") {
 	CHECK(v[0] == 'l');
 	CHECK(v[1] == 'm');
 }
+
+TEST_CASE("Const begin and end") {
+	const auto s = fsv::filtered_string_view{"puppy", [](const char& c) { return !(c == 'u' || c == 'y'); }};
+	auto v = std::vector<char>{s.cbegin(), s.cend()};
+
+	REQUIRE(v.size() == 3);
+	CHECK(v[0] == 'p');
+	CHECK(v[1] == 'p');
+	CHECK(v[2] == 'p');
+}
+
+TEST_CASE("Const reverse begin and end") {
+	const auto s = fsv::filtered_string_view{"milo", [](const char& c) { return !(c == 'i' || c == 'o'); }};
+	auto v = std::vector<char>{s.crbegin(), s.crend()};
+
+	REQUIRE(v.size() == 2);
+	CHECK(v[0] == 'l');
+	CHECK(v[1] == 'm');
+}
