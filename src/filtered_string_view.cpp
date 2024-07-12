@@ -112,7 +112,7 @@ namespace fsv {
 	// 2.6 Member Functions
 	// 2.6.1 Return a character from the fsv according to the index
 	auto filtered_string_view::at(int index) -> const char& {
-		if (index < 0 || index >= static_cast<int>(size())) {
+		if (index < 0 or index >= static_cast<int>(size())) {
 			std::ostringstream oss;
 			oss << "filtered_string_view::at(" << index << "): invalid index";
 			throw std::domain_error(oss.str());
@@ -244,7 +244,7 @@ namespace fsv {
 		}
 
 		// If fsv ends with tok
-		if (current == end && end != start && *(end - tok_len) == *tok_start) {
+		if (current == end and end != start and *(end - tok_len) == *tok_start) {
 			result.emplace_back("", fsv.predicate());
 		}
 		return result;
@@ -287,7 +287,7 @@ namespace fsv {
 		int filtered_count = 0;
 		const char* substr_end = nullptr;
 
-		while (current != end && (count <= 0 || filtered_count < count)) {
+		while (current != end and (count <= 0 or filtered_count < count)) {
 			if (fsv.predicate()(*current)) {
 				++filtered_count;
 			}
@@ -314,7 +314,7 @@ namespace fsv {
 	filtered_string_view::const_iterator::const_iterator(const char* ptr, const filter& predicate)
 	: ptr_(ptr)
 	, predicate_(&predicate) {
-		while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)) {
+		while (ptr_ and *ptr_ and !(*predicate_)(*ptr_)) {
 			++ptr_;
 		}
 	}
@@ -327,7 +327,7 @@ namespace fsv {
 	auto filtered_string_view::const_iterator::operator++() -> const_iterator& {
 		do {
 			++ptr_;
-		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // Skip all characters that do not match the predicate
+		} while (ptr_ and *ptr_ and !(*predicate_)(*ptr_)); // Skip all characters that do not match the predicate
 		return *this;
 	}
 
@@ -340,7 +340,7 @@ namespace fsv {
 	auto filtered_string_view::const_iterator::operator--() -> const_iterator& {
 		do {
 			--ptr_;
-		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // Skip all characters that do not match the predicate
+		} while (ptr_ and *ptr_ and !(*predicate_)(*ptr_)); // Skip all characters that do not match the predicate
 		return *this;
 	}
 
@@ -358,7 +358,7 @@ namespace fsv {
 		return ptr_ != other.ptr_;
 	}
 
-	// 2.10 begin()、end()、cbegin()、cend()、rbegin()、rend()、crbegin()、crend()
+	// 2.10 begin(), end(), cbegin(), cend(), rbegin(), rend(), crbegin(), crend()
 	auto filtered_string_view::begin() const -> const_iterator {
 		const char* ptr = pointer_;
 		while (ptr != pointer_ + length_ && !predicate_(*ptr)) {

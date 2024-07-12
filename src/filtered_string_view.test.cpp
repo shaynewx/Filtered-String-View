@@ -128,8 +128,8 @@ TEST_CASE("Move assignment transfers state correctly", "[move_assignment]") {
 	fsv2 = std::move(fsv1);
 
 	// Check whether fs2 has correctly received the resource of fs1
-	REQUIRE((static_cast<int>(fsv1.size()) == 0 && fsv1.data() == nullptr));
-	REQUIRE((static_cast<int>(fsv2.size()) == 2 && fsv2.data() != nullptr));
+	REQUIRE((static_cast<int>(fsv1.size()) == 0 and fsv1.data() == nullptr));
+	REQUIRE((static_cast<int>(fsv2.size()) == 2 and fsv2.data() != nullptr));
 	REQUIRE(static_cast<std::string>(fsv2) == "89");
 }
 
