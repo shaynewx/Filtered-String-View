@@ -516,3 +516,21 @@ TEST_CASE("Postfix increment operator") {
 }
 
 // 2.10 Range
+TEST_CASE("Filter string and store in vector") {
+	const auto s = fsv::filtered_string_view{"puppy", [](const char& c) { return !(c == 'u' || c == 'y'); }};
+	auto v = std::vector<char>{s.begin(), s.end()};
+
+	REQUIRE(v.size() == 3);
+	CHECK(v[0] == 'p');
+	CHECK(v[1] == 'p');
+	CHECK(v[2] == 'p');
+}
+
+TEST_CASE("Reverse filter string and store in vector") {
+	const auto s = fsv::filtered_string_view{"milo", [](const char& c) { return !(c == 'i' || c == 'o'); }};
+	auto v = std::vector<char>{s.rbegin(), s.rend()};
+
+	REQUIRE(v.size() == 2);
+	CHECK(v[0] == 'l');
+	CHECK(v[1] == 'm');
+}
