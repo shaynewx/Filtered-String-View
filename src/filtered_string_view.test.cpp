@@ -229,7 +229,7 @@ TEST_CASE("Data ignores filtering and outputs the entire string") {
 
 	std::string output;
 	auto ptr = sv.data();
-	if (ptr) { // 确保 ptr 不是空指针
+	if (ptr) { // Make sure ptr is not a null pointer
 		while (*ptr) {
 			output += *ptr++;
 		}
@@ -238,9 +238,8 @@ TEST_CASE("Data ignores filtering and outputs the entire string") {
 	REQUIRE(output == "Sum 42");
 }
 
-// 2.6.5 访问用于进行过滤的谓词
+// 2.6.5 Return the predicate used for filtering
 TEST_CASE("Access and call predicate function") {
-	// 创建一个打印并返回真值的谓词（这个谓词每次被调用时都打印 "hi!" 并返回 true ，不会过滤任何数据）
 	const auto print_and_return_true = [](const char&) {
 		std::cout << "hi!";
 		return true;
@@ -252,7 +251,7 @@ TEST_CASE("Access and call predicate function") {
 	predicate(char{});
 }
 
-// 2.7.1. ==运算符的重载，按字典顺序比较两个filtered_string_view字符串是否相等
+// 2.7.1. Overloading of ==, compares two fsv lexicographically for equality
 TEST_CASE("filtered_string_view equality and inequality") {
 	auto lo = fsv::filtered_string_view{"aaa"};
 	auto hi = fsv::filtered_string_view{"zzz"};
@@ -261,7 +260,7 @@ TEST_CASE("filtered_string_view equality and inequality") {
 	REQUIRE(lo != hi);
 }
 
-// 2.7.2 <=>运算符的重载
+// 2.7.2 Overloading of <=>
 TEST_CASE("Spaceship operator for filtered_string_view") {
 	auto lo = fsv::filtered_string_view{"aaa"};
 	auto hi = fsv::filtered_string_view{"zzz"};
@@ -278,14 +277,14 @@ TEST_CASE("Spaceship operator for filtered_string_view") {
 	REQUIRE((lo <=> hi == std::strong_ordering::less));
 }
 
-// // 2.7.3 <<运算符的重载
+// // 2.7.3 Overloading of <<
 TEST_CASE("Output operator for filtered_string_view") {
 	fsv::filtered_string_view fsv("c++ > rust > java", [](const char& c) { return c == 'c' || c == '+'; });
 	std::cout << fsv;
 
 	std::stringstream ss;
-	ss << fsv; // 使用自定义的输出运算符
-	REQUIRE(ss.str() == "c++"); // 验证输出是否仅包含过滤后的字符
+	ss << fsv;
+	REQUIRE(ss.str() == "c++");
 }
 
 // 2.8.1 compose
@@ -299,8 +298,8 @@ TEST_CASE("Compose function combines multiple filters") {
 	std::cout << sv;
 
 	std::stringstream ss;
-	ss << sv; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == "c/c++"); // 验证输出是否正确
+	ss << sv;
+	REQUIRE(ss.str() == "c/c++");
 }
 
 TEST_CASE("Compose function with all true filters") {
@@ -313,8 +312,8 @@ TEST_CASE("Compose function with all true filters") {
 	std::cout << sv;
 
 	std::stringstream ss;
-	ss << sv; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == "c / c++"); // 验证输出是否正确
+	ss << sv;
+	REQUIRE(ss.str() == "c / c++");
 }
 
 // 2.8.2 split
@@ -385,11 +384,11 @@ TEST_CASE("Split with no delimiter in string") {
 // 2.8.3 substr
 TEST_CASE("Substr function extracts part of the string correctly") {
 	fsv::filtered_string_view sv{"Siberian Husky"};
-	auto result = fsv::substr(sv, 9); // 提取从第9个字符开始的子字符串
+	auto result = fsv::substr(sv, 9); // Extract the substring starting at the 9th character
 	std::cout << result;
 	std::stringstream ss;
-	ss << result; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == "Husky"); // 验证输出是否为 "Husky"
+	ss << result;
+	REQUIRE(ss.str() == "Husky");
 }
 
 TEST_CASE("Substr function with predicate filters and extracts upper case letters") {
@@ -399,44 +398,44 @@ TEST_CASE("Substr function with predicate filters and extracts upper case letter
 	std::cout << result;
 
 	std::stringstream ss;
-	ss << result; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == "SD"); // 验证输出是否为 "SD"
+	ss << result;
+	REQUIRE(ss.str() == "SD");
 }
 
 TEST_CASE("Substr function extracts from the beginning of the string") {
 	fsv::filtered_string_view sv{"Samoyed"};
-	auto result = fsv::substr(sv, 0, 3); // 提取从第0个字符开始的3个字符
+	auto result = fsv::substr(sv, 0, 3); // Extract 3 characters starting from the 0th character
 	std::cout << result;
 	std::stringstream ss;
-	ss << result; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == "Sam"); // 验证输出是否为 "Sam"
+	ss << result;
+	REQUIRE(ss.str() == "Sam");
 }
 
 TEST_CASE("Substr function extracts with length exceeding string length") {
 	fsv::filtered_string_view sv{"Collie"};
-	auto result = fsv::substr(sv, 4, 10); // 提取从第4个字符开始的10个字符
+	auto result = fsv::substr(sv, 4, 10); // Extract 10 characters starting from the 4th character
 	std::cout << result;
 	std::stringstream ss;
-	ss << result; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == "ie"); // 验证输出是否为 "ie"
+	ss << result;
+	REQUIRE(ss.str() == "ie");
 }
 
 TEST_CASE("Substr function handles empty string") {
 	fsv::filtered_string_view sv{""};
-	auto result = fsv::substr(sv, 0, 5); // 从空字符串提取子字符串
+	auto result = fsv::substr(sv, 0, 5); // Extract a substring from an empty string
 	std::cout << result;
 	std::stringstream ss;
-	ss << result; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == ""); // 验证输出是否为空字符串
+	ss << result;
+	REQUIRE(ss.str() == "");
 }
 
 TEST_CASE("Substr function extracts middle part of the string") {
 	fsv::filtered_string_view sv{"Alaskan Malamute"};
-	auto result = fsv::substr(sv, 8, 4); // 提取从第8个字符开始的4个字符
+	auto result = fsv::substr(sv, 8, 4); // Extract 4 characters starting from the 8th character
 	std::cout << result;
 	std::stringstream ss;
-	ss << result; // 使用 operator<< 进行输出
-	REQUIRE(ss.str() == "Mala"); // 验证输出是否为 "Mala"
+	ss << result;
+	REQUIRE(ss.str() == "Mala");
 }
 
 // 2.9 迭代器
@@ -471,7 +470,7 @@ TEST_CASE("Reverse iteration") {
 	REQUIRE(oss.str() == "as");
 }
 
-// 示例谓词：检查字符是否是字母
+// Check if a character is a letter
 bool is_alpha(const char& ch) {
 	return std::isalpha(static_cast<unsigned char>(ch));
 }
@@ -482,15 +481,15 @@ TEST_CASE("Prefix increment operator") {
 
 	auto fsv = fsv::filtered_string_view(str, predicate);
 	auto it = fsv.begin();
-	REQUIRE(it != fsv.end()); // 确保迭代器不在末尾
-	CHECK(*it == 'a'); // 检查第一个符合谓词条件的字符
+	REQUIRE(it != fsv.end()); // Make sure the iterator is not at the end
+	CHECK(*it == 'a'); // Check the first character that matches the predicate
 	++it;
 	REQUIRE(it != fsv.end());
-	CHECK(*it == 'b'); // 检查第二个符合谓词条件的字符
+	CHECK(*it == 'b'); // Check the second character that matches the predicate
 
 	++it;
 	REQUIRE(it != fsv.end());
-	CHECK(*it == 'c'); // 检查第三个符合谓词条件的字符
+	CHECK(*it == 'c'); // Check the third character that matches the predicate
 }
 
 TEST_CASE("Postfix increment operator") {
@@ -500,16 +499,16 @@ TEST_CASE("Postfix increment operator") {
 	auto fsv = fsv::filtered_string_view(str, predicate);
 	auto it = fsv.begin();
 
-	REQUIRE(it != fsv.end()); // 确保迭代器不在末尾
-	CHECK(*it == 'a'); // 检查第一个符合谓词条件的字符
+	REQUIRE(it != fsv.end()); // Make sure the iterator is not at the end
+	CHECK(*it == 'a'); // Check the first character that matches the predicate
 
 	it++;
 	REQUIRE(it != fsv.end());
-	CHECK(*it == 'b'); // 检查第二个符合谓词条件的字符
+	CHECK(*it == 'b'); // Check the second character that matches the predicate
 
 	it++;
 	REQUIRE(it != fsv.end());
-	CHECK(*it == 'c'); // 检查第三个符合谓词条件的字符
+	CHECK(*it == 'c'); // Check the third character that matches the predicate
 }
 
 // 2.10 Range

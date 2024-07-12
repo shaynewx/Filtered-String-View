@@ -197,27 +197,27 @@ namespace fsv {
 	}
 
 	// 2.8.2 Split
-	// 接收两个filtered_string_view作为参数，一个是fsv，一个是tok，返回一个vector
-	// 使用tok作为分隔符，将fsv切割成一系列子串并返回
-	// 通常来说，分隔符出现在两个strings的中间，也有可能会出现在字符串的开头或结尾，这种情况意味着分割后的结果可能包含空的filtered_string_view
-	// 如果fsv中不包含tok，或fsv为空，则返回的vector中只包含一个元素，即原始fsv的副本
-	// split类似python中的spilt()函数，但与python不同的是，但是fsv::split()可以接受空的分隔符
+	// Receive two fsv as parameters, one is fsv and the other is tok, and return a vector
+	// Using tok as the delimiter, cut fsv into a series of substrings and return them
+	// If tok is at the beginning or end of fsv, the result after splitting may contain an empty fsv
+	// If fsv does not contain tok, or fsv is empty, the returned vector contains a copy of fsv
+	// fsv::split() can accept an empty delimiter
 	auto split(const filtered_string_view& fsv, const filtered_string_view& tok) -> std::vector<filtered_string_view> {
 		std::vector<filtered_string_view> result;
 
-		// 如果fsv为空或者tok为空，返回fsv副本
+		// If fsv is empty or tok is empty, return a copy of fsv
 		if (fsv.empty() or tok.empty()) {
 			result.push_back(fsv);
 			return result;
 		}
 
-		const char* start = fsv.data(); // 指向 fsv 的起始字符
-		const char* end = start + fsv.original_size(); // 指向 fsv 的末尾字符串的下一位
-		const char* current = start; // 用于遍历 fsv 的指针
-		const char* tok_start = tok.data(); // 指向分隔符 tok 的起始字符
-		const std::size_t tok_len = tok.size(); // 获取分隔符的长度
+		const char* start = fsv.data(); // Pointer to the start of fsv
+		const char* end = start + fsv.original_size(); // Point to the end of fsv
+		const char* current = start; // Pointer used to traverse fsv
+		const char* tok_start = tok.data(); //  Pointer to the start of tok
+		const std::size_t tok_len = tok.size(); // The length of tok
 
-		while (current < end) { // 遍历 fsv
+		while (current < end) {
 			const char* next = std::search(current, end, tok_start, tok_start + tok_len); // 查找分隔符的位置
 
 			if (next == end) { // 如果没有找到分隔符（fsv不包含tok），说明当前段落是最后一部分
