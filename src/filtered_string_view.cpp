@@ -54,12 +54,6 @@ namespace fsv {
 		other.length_ = 0; // 清空原对象other的长度
 	}
 
-	// 接受字符开始、长度和谓词
-	filtered_string_view::filtered_string_view(const char* begin, std::size_t length, filter predicate)
-	: pointer_(begin) // 直接指向原始 C 字符串
-	, length_(length) // 使用 strlen 计算字符串长度
-	, predicate_(std::move(predicate)) {}
-
 	// 2.5 类内部运算符重载的实现
 	// 2.5.2 =运算符的重载，用于复制任务
 	auto filtered_string_view::operator=(const filtered_string_view& other) -> filtered_string_view& {
@@ -227,19 +221,29 @@ namespace fsv {
 
 			if (next == end) { // 如果没有找到分隔符（fsv不包含tok），说明当前段落是最后一部分
 				if (current != end) {
-					result.emplace_back(current, end - current, fsv.predicate()); // 添加从当前位置到结束的部分
+					// 创建一个新的以空字符结尾的字符串
+					std::size_t len = static_cast<size_t>(end - current);
+					char* temp = new char[len + 1];
+					std::strncpy(temp, current, len);
+					temp[len] = '\0';
+					result.emplace_back(temp, fsv.predicate());
 				}
 				break;
 			}
 			else {
-				result.emplace_back(current, next - current, fsv.predicate()); // 添加从当前位置到分隔符位置的部分
+				// 创建一个新的以空字符结尾的字符串
+				std::size_t len = static_cast<size_t>(next - current);
+				char* temp = new char[len + 1];
+				std::strncpy(temp, current, len);
+				temp[len] = '\0';
+				result.emplace_back(temp, fsv.predicate());
 				current = next + tok_len; // 更新 current，跳过当前找到的分隔符
 			}
 		}
 
 		// 特殊情况，如 fsv 以分隔符结尾
 		if (current == end && end != start && *(end - tok_len) == *tok_start) {
-			result.emplace_back(end, 0, fsv.predicate());
+			result.emplace_back("", fsv.predicate());
 		}
 		return result;
 	}
@@ -261,7 +265,7 @@ namespace fsv {
 
 		// 确保 pos 不超过过滤后的字符串长度
 		if (pos >= static_cast<int>(fsv.size())) {
-			return filtered_string_view("", 0, fsv.predicate());
+			return filtered_string_view("", fsv.predicate());
 		}
 
 		// 查找子字符串的起始位置
@@ -277,22 +281,31 @@ namespace fsv {
 
 		// 确保找到起始位置
 		if (current == end) {
-			return filtered_string_view("", 0, fsv.predicate());
+			return filtered_string_view("", fsv.predicate());
 		}
 
 		substr_start = current;
 
 		// 计算 rcount，并查找子字符串的结束位置
 		int filtered_count = 0;
+		const char* substr_end = nullptr;
 
-		while (current != end and (count <= 0 || filtered_count < count)) {
+		while (current != end && (count <= 0 || filtered_count < count)) {
 			if (fsv.predicate()(*current)) {
 				++filtered_count;
 			}
 			++current;
 		}
 
-		return filtered_string_view(substr_start, static_cast<size_t>(current - substr_start), fsv.predicate());
+		substr_end = current;
+
+		// 创建一个新的以空字符结尾的字符串
+		std::size_t len = static_cast<size_t>(substr_end - substr_start);
+		char* temp = new char[len + 1];
+		std::strncpy(temp, substr_start, len);
+		temp[len] = '\0';
+
+		return filtered_string_view(temp, fsv.predicate());
 	}
 
 	// 2.9 迭代器 Iterator

@@ -26,7 +26,6 @@ namespace fsv {
 		filtered_string_view(const char* str, filter predicate); // 2.4.5 带有谓词的以空字符结尾的字符串构造函数
 		filtered_string_view(const filtered_string_view& other); // 2.4.6 拷贝构造函数
 		filtered_string_view(filtered_string_view&& other) noexcept; // 2.4.6 移动构造函数
-		filtered_string_view(const char* begin, std::size_t length, filter predicate); // 接受字符开始、长度和谓词
 		~filtered_string_view() = default; // 2.5 默认析构函数
 
 		// 运算符重载
