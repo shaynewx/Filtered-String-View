@@ -514,3 +514,5 @@ TEST_CASE("Postfix increment operator") {
 	REQUIRE(it != fsv.end());
 	CHECK(*it == 'c'); // 检查第三个符合谓词条件的字符
 }
+
+// 2.10 Range

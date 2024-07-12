@@ -308,7 +308,9 @@ namespace fsv {
 	// filtered_string_view 应该有一个 member type 为 iterator = const_iterator
 
 	// 迭代器的初始实现
-	filtered_string_view::const_iterator::const_iterator() = default;
+	filtered_string_view::const_iterator::const_iterator()
+	: ptr_(nullptr)
+	, predicate_(nullptr) {}
 
 	filtered_string_view::const_iterator::const_iterator(const char* ptr, const filter& predicate)
 	: ptr_(ptr)
@@ -357,7 +359,10 @@ namespace fsv {
 		return ptr_ != other.ptr_;
 	}
 
-	// begin 和 end 的实现
+	// 2.10
+	// 要使filtered_string_view能够用作双向范围
+	// 实现begin()、end()、cbegin()、cend()、rbegin()、rend()、crbegin()、crend()
+	// 此外，双向范围类型成员：iterator  const_iterator  reverse_iterator  const_reverse_iterator
 	auto filtered_string_view::begin() const -> const_iterator {
 		const char* ptr = pointer_;
 		while (ptr != pointer_ + length_ && !predicate_(*ptr)) {
@@ -366,8 +371,31 @@ namespace fsv {
 		return const_iterator(ptr, predicate_);
 	}
 
+	auto filtered_string_view::cbegin() const -> const_iterator {
+		return begin();
+	}
+
 	auto filtered_string_view::end() const -> const_iterator {
 		return const_iterator(pointer_ + length_, predicate_);
 	}
 
+	auto filtered_string_view::cend() const -> const_iterator {
+		return end();
+	}
+
+	auto filtered_string_view::rbegin() const -> const_reverse_iterator {
+		return const_reverse_iterator(end());
+	}
+
+	auto filtered_string_view::crbegin() const -> const_reverse_iterator {
+		return rbegin();
+	}
+
+	auto filtered_string_view::rend() const -> const_reverse_iterator {
+		return const_reverse_iterator(begin());
+	}
+
+	auto filtered_string_view::crend() const -> const_reverse_iterator {
+		return rend();
+	}
 } // namespace fsv

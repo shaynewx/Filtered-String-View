@@ -47,12 +47,14 @@ namespace fsv {
 		// 2.9 迭代器 Iterator
 		class const_iterator {
 		 public:
+			// 迭代器内部类型定义
 			using iterator_category = std::bidirectional_iterator_tag;
 			using value_type = char;
 			using difference_type = ptrdiff_t;
 			using pointer = void;
 			using reference = const char&;
 
+			// 迭代器内部构造函数
 			const_iterator(); // Default constructor
 			const_iterator(const char* ptr, const filter& predicate);
 
@@ -66,13 +68,27 @@ namespace fsv {
 			auto operator!=(const const_iterator& other) const -> bool;
 
 		 private:
-			const char* ptr_;
-			const filter* predicate_;
+			const char* ptr_; // 当前字符指针
+			const filter* predicate_; // 过滤条件
 		};
 
 		using iterator = const_iterator;
+		using const_iterator = const_iterator;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		// 2.10 Range
 		auto begin() const -> const_iterator;
+		auto cbegin() const -> const_iterator;
+
 		auto end() const -> const_iterator;
+		auto cend() const -> const_iterator;
+
+		auto rbegin() const -> const_reverse_iterator;
+		auto crbegin() const -> const_reverse_iterator;
+
+		auto rend() const -> const_reverse_iterator;
+		auto crend() const -> const_reverse_iterator;
 
 	 private:
 		const char* pointer_; // 指向原始字符串数据的常量指针
