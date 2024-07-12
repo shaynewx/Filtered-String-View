@@ -3,49 +3,49 @@
 
 namespace fsv {
 
-	// 默认的 静态成员 谓词函数，总是返回 true
+	// The default predicate function, which always returns true
 	auto filtered_string_view::default_predicate(const char&) -> bool {
 		return true;
 	}
 
-	// 构造函数的实现
-	// 2.4.1 默认构造函数
+	// Constructors
+	// 2.4.1 Default Constructor
 	filtered_string_view::filtered_string_view()
 	: pointer_(nullptr)
 	, length_(0)
 	, predicate_(default_predicate) {}
 
-	// 2.4.2隐式字符串构造函数
+	// 2.4.2 Implicit String Constructor
 	filtered_string_view::filtered_string_view(const std::string& s)
 	: pointer_(s.data())
 	, length_(s.size())
 	, predicate_(default_predicate) {}
 
-	// 2.4.3带Predicate的字符串构造函数
+	// 2.4.3 String Constructor with Predicate
 	filtered_string_view::filtered_string_view(const std::string& s, filter predicate)
 	: pointer_(s.data())
-	, length_(s.size()) // 表示开始时认为没有任何字符符合谓词条件
+	, length_(s.size())
 	, predicate_(std::move(predicate)) {}
 
-	// 2.4.4 隐式以空字符结尾的字符串构造函数
+	// 2.4.4 Implicit Null-Terminated String Constructor
 	filtered_string_view::filtered_string_view(const char* str)
 	: pointer_(str) // 直接指向传入的 C 风格字符串
 	, length_(std::strlen(str)) // 使用 strlen 计算字符串长度，（字符串以 null 结尾）
 	, predicate_(default_predicate) {} // 使用默认的总是返回 true 的谓词
 
-	// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
+	// 2.4.5 Null-Terminated String with Predicate Constructor
 	filtered_string_view::filtered_string_view(const char* str, filter predicate)
 	: pointer_(str) // 直接指向原始 C 字符串
 	, length_(std::strlen(str)) // 使用 strlen 计算字符串长度
 	, predicate_(std::move(predicate)) {}
 
-	// 2.4.6 拷贝构造函数
+	// 2.4.6 Copy Constructor
 	filtered_string_view::filtered_string_view(const filtered_string_view& other)
 	: pointer_(other.pointer_)
 	, length_(other.length_)
 	, predicate_(other.predicate_) {} // 由于 filtered_string_view 不拥有数据，直接复制other的数据即可
 
-	// 2.4.6 移动构造函数
+	// 2.4.6 Move Constructor
 	filtered_string_view::filtered_string_view(filtered_string_view&& other) noexcept
 	: pointer_(other.pointer_)
 	, length_(other.length_)
@@ -54,8 +54,8 @@ namespace fsv {
 		other.length_ = 0; // 清空原对象other的长度
 	}
 
-	// 2.5 类内部运算符重载的实现
-	// 2.5.2 =运算符的重载，用于复制任务
+	// 2.5 Member Operators
+	// 2.5.2 Overloading of = for copy asm
 	auto filtered_string_view::operator=(const filtered_string_view& other) -> filtered_string_view& {
 		if (this != &other) { // 检查自赋值
 			pointer_ = other.pointer_;
@@ -64,7 +64,7 @@ namespace fsv {
 		}
 		return *this;
 	}
-	// 2.5.3 =运算符的重载，用于移动任务
+	// 2.5.3 Overloading of = for move asm
 	auto filtered_string_view::operator=(filtered_string_view&& other) noexcept -> filtered_string_view& {
 		if (this != &other) {
 			pointer_ = other.pointer_;
@@ -78,10 +78,10 @@ namespace fsv {
 		return *this;
 	}
 
-	// 定义静态成员，用于无效索引情况的默认字符
+	// Default character for invalid index cases
 	const char filtered_string_view::default_char = '\0';
 
-	// 2.5.4 []运算符的重载，用于返回类实例中特定索引位置的字符
+	// 2.5.4 [Overloading of [] to read the character at a specific index position in fsc
 	auto filtered_string_view::operator[](int n) const -> const char& {
 		const char* temp_ptr = pointer_; // 从原始数据开始
 		int count = 0; // 跟踪已经遇到的符合谓词条件的字符数
@@ -99,7 +99,7 @@ namespace fsv {
 		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
 	}
 
-	// 2.5.5 类型转换运算符，允许 filtered_string_view 对象显式转换为 std::string，返回的是过滤后字符串的拷贝
+	// 2.5.5 Overloading of std::string, allow the
 	filtered_string_view::operator std::string() const {
 		std::string result; // 初始化输出结果
 		result.reserve(length_); // 结果的最大可能长度为原字符串的长度
@@ -112,8 +112,8 @@ namespace fsv {
 		return result;
 	}
 
-	// 成员函数的实现
-	// 2.6.1 at：允许根据索引从过滤后的字符串中读取一个字符
+	// 2.6 Member Functions
+	// 2.6.1 Return a character from the fsv according to the index
 	auto filtered_string_view::at(int index) -> const char& {
 		if (index < 0 || index >= static_cast<int>(size())) {
 			std::ostringstream oss;
@@ -137,44 +137,44 @@ namespace fsv {
 		return default_char; // 如果索引n超出了符合条件的字符数，返回默认字符引用
 	}
 
-	// 2.6.2 返回过滤后的字符串视图的长度，即满足谓词条件的字符总数
+	// 2.6.2 Return the size of the fsv
 	auto filtered_string_view::size() const -> std::size_t {
 		return static_cast<std::size_t>(std::count_if(pointer_, pointer_ + length_, predicate_));
 	}
 
-	// 2.6.3 返回过滤后的字符串是否为空
+	// 2.6.3 Return whether the fsv is empty
 	auto filtered_string_view::empty() const -> bool {
 		return size() == 0;
 	}
 
-	// 2.6.4 返回指向底层数据的指针
+	// 2.6.4 Return the pointer to the underlying data
 	auto filtered_string_view::data() const -> const char* {
 		return pointer_;
 	}
 
-	// 2.6.5 访问用于进行过滤的谓词
+	// 2.6.5 Return the predicate used for filtering
 	auto filtered_string_view::predicate() const -> const filter& {
 		return predicate_;
 	}
 
-	// 返回初始字符串的长度
+	// Return the length of the original string
 	auto filtered_string_view::original_size() const -> std::size_t {
 		return length_;
 	}
 
-	// 2.7.1. ==运算符的重载，按字典顺序比较两个filtered_string_view字符串是否相等
+	// 2.7.1. Overloading of ==, compares two fsv lexicographically for equality
 	auto operator==(const filtered_string_view& lhs, const filtered_string_view& rhs) -> bool {
 		return static_cast<std::string>(lhs) == static_cast<std::string>(rhs);
 	}
 
-	// 2.7.2 <=>运算符的重载
+	// 2.7.2 Overloading of <=>
 	auto operator<=>(const filtered_string_view& lhs, const filtered_string_view& rhs) -> std::strong_ordering {
 		auto lhs_str = static_cast<std::string>(lhs); // 将 lhs 转换为 string
 		auto rhs_str = static_cast<std::string>(rhs); // 将 rhs 转换为 string
 		return lhs_str.compare(rhs_str) <=> 0; // 使用标准库的比较功能和C++20的太空船运算符
 	}
 
-	// 2.7.3 <<运算符的重载
+	// 2.7.3 Overloading of <<
 	std::ostream& operator<<(std::ostream& os, const filtered_string_view& fsv) {
 		for (std::size_t i = 0; i < fsv.size(); ++i) {
 			os << fsv[static_cast<int>(i)]; // 输出每个过滤后的字符
