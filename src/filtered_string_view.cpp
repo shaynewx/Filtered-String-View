@@ -98,7 +98,7 @@ namespace fsv {
 		return default_char; // Return the default character if index n exceeds the number of qualifying characters
 	}
 
-	// 2.5.5 Overloading of std::string, allow the
+	// 2.5.5 Overloading of std::string, allowing fsv to be explicitly converted to std::string
 	filtered_string_view::operator std::string() const {
 		std::string result;
 		result.reserve(length_); // The maximum length of the result is the length of the original string
@@ -183,9 +183,11 @@ namespace fsv {
 
 	// 2.8 Non-Member Utility Functions
 	// 2.8.1 Compose
-	// 接收一个fsv对象和一个过滤谓词的vector，返回一个新的fsv对象，
-	// 将所有过滤谓词用and组合，只有当所有谓词返回true时才返回true，也即所有过滤器会过滤相同字符
-	// 但是只要有一个谓词函数是false，则这个新的谓词函数就会短路，且立即返回false并停止进一步检查（类似 logical AND）
+	// Accept a fsv object and a vector of predicates and return a new fsv object
+	// Combine all filter predicates with and, and return true only when all predicates return true,
+	// that is, all filters will filter the same characters
+	// As long as one of the predicate functions is false,
+	// the new predicate function will short-circuit and immediately return false
 	auto compose(const filtered_string_view& fsv, const std::vector<filter>& filts) -> filtered_string_view {
 		auto composite_filter = [filts](const char& c) -> bool {
 			return std::ranges::all_of(filts, [&](const auto& filt) { return filt(c); });

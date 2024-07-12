@@ -7,43 +7,43 @@
 #include <sstream>
 #include <string>
 
-// 2.3 检查默认谓词函数对所有字符是否都返回 true
+// 2.3 Check whether the default predicate function returns true for all characters
 TEST_CASE("Default predicate returns true for all chars") {
 	for (char c = std::numeric_limits<char>::min(); c != std::numeric_limits<char>::max(); c++) {
 		assert(fsv::filtered_string_view::default_predicate(c));
 	}
 }
 
-// 2.4.1 检查默认构造函数是否创建了一个空的视图
+// 2.4.1 Check if the default constructor creates an empty view
 TEST_CASE("Default constructor creates an empty view") {
 	auto sv = fsv::filtered_string_view{};
 	REQUIRE(static_cast<int>(sv.size()) == 0);
 }
 
-// 2.4.2 检查从 std::string 隐式转换为 fsv::filtered_string_view 的行为
+// 2.4.2 Check the behavior of implicit conversion from std::string to fsv::filtered_string_view
 TEST_CASE("Implicit String Constructor") {
 	auto s = std::string{"cat"};
-	auto sv = fsv::filtered_string_view{s}; // 隐式转换
+	auto sv = fsv::filtered_string_view{s}; // Implicit Conversion
 
 	REQUIRE(sv.size() == s.size());
 	REQUIRE(static_cast<std::string>(sv) == s);
 }
 
-// 2.4.3 检查是否能显示过滤出的内容
+// 2.4.3 Check whether the filtered content can be displayed
 TEST_CASE("String Constructor with Predicate") {
 	auto s = std::string{"cat"};
 	auto pred = [](const char& c) { return c == 'a'; };
-	auto sv = fsv::filtered_string_view{s, pred}; // 使用谓词的构造函数
+	auto sv = fsv::filtered_string_view{s, pred};
 
-	REQUIRE(sv.size() == 1); // 只有一个字符 'a' 符合谓词条件
+	REQUIRE(sv.size() == 1); // Only one character 'a' meets the predicate condition
 }
 
 TEST_CASE("String Constructor with Predicate that matches no characters") {
 	auto s = std::string{"cat"};
-	auto pred = [](const char& c) { return c == 'z'; }; // 一个不会匹配任何字符的谓词
+	auto pred = [](const char& c) { return c == 'z'; };
 	auto sv = fsv::filtered_string_view{s, pred};
 
-	REQUIRE(static_cast<int>(sv.size()) == 0); // 没有字符符合条件
+	REQUIRE(static_cast<int>(sv.size()) == 0); // No characters meet the predicate condition
 }
 
 TEST_CASE("String Constructor with Predicate that matches all characters") {
@@ -51,34 +51,34 @@ TEST_CASE("String Constructor with Predicate that matches all characters") {
 	auto pred = [](const char& c) {
 		(void)c;
 		return true;
-	}; // 所有字符都符合条件的谓词
+	};
 	auto sv = fsv::filtered_string_view{s, pred};
 
-	REQUIRE(sv.size() == 3); // 所有字符都应该符合条件
+	REQUIRE(sv.size() == 3); // All characters meet the predicate condition
 }
 
 TEST_CASE("String Constructor with Predicate that matches characters intermittently") {
 	auto s = std::string{"banana"};
-	auto pred = [](const char& c) { return c == 'a'; }; // 只有 'a' 符合条件
+	auto pred = [](const char& c) { return c == 'a'; }; // Only 'a' matches the condition
 	auto sv = fsv::filtered_string_view{s, pred};
 
-	REQUIRE(sv.size() == 3); // 有三个 'a' 符合条件
+	REQUIRE(sv.size() == 3); // There are three 'a's that meet the condition
 	REQUIRE(static_cast<std::string>(sv) == "aaa");
 }
 
-// 2.4.4 隐式以空字符结尾的字符串构造函数
+// 2.4.4 Implicit Null-Terminated String Constructor
 TEST_CASE("Filtered_string_view constructed from C-style string") {
 	auto sv = fsv::filtered_string_view{"cat"};
-	REQUIRE(sv.size() == 3); //
+	REQUIRE(sv.size() == 3);
 	REQUIRE(static_cast<std::string>(sv) == "cat");
 }
 
-// 2.4.5 带有谓词的以空字符结尾的字符串构造函数
+// 2.4.5 Null-Terminated String with Predicate Constructor
 TEST_CASE("Filtered_string_view constructed from C-style string with predicate") {
 	auto pred = [](const char& c) { return c == 'a'; };
 	auto sv = fsv::filtered_string_view{"cat", pred};
 
-	REQUIRE(sv.size() == 1); // 只有一个字符 'a' 符合谓词条件
+	REQUIRE(sv.size() == 1); // Only 'a' matches the condition
 	REQUIRE(static_cast<std::string>(sv) == "a");
 }
 
@@ -87,29 +87,28 @@ TEST_CASE("Filtered_string_view constructed from C-style string with predicate -
 	auto pred = [](const char& c) { return c == 'a' || c == 'e'; };
 	fsv::filtered_string_view sv(test_str, pred);
 
-	REQUIRE(sv.size() == 3); // 'e', 'a', 'e' 一共三个字符符合谓词条件
+	REQUIRE(sv.size() == 3); // 'e', 'a', 'e' A total of three characters meet the predicate condition
 	REQUIRE(static_cast<std::string>(sv) == "eae");
 }
 
-// 2.4.6 拷贝和移动构造函数
+// 2.4.6 Copy and Move Constructor
 TEST_CASE("Copy constructor shares the same data") {
 	auto sv1 = fsv::filtered_string_view{"bulldog"};
-	const auto copy = sv1; // 使用复制构造函数
+	const auto copy = sv1; // Use = to copy
 
-	// 检查复制后的对象是否与原始对象共享相同的数据指针
-	REQUIRE(copy.data() == sv1.data());
+	REQUIRE(copy.data() == sv1.data()); // Check if the copied object shares the same data pointer as the original
+	                                    // object
 }
 
 TEST_CASE("Move constructor transfers ownership correctly") {
 	auto sv1 = fsv::filtered_string_view{"bulldog"};
-	const auto move = std::move(sv1); // 使用移动构造函数
+	const auto move = std::move(sv1); // Use std::move to move
 
-	// 检查移动后原始对象的指针是否被设置为 nullptr
 	REQUIRE(sv1.data() == nullptr);
 	REQUIRE(static_cast<int>(sv1.size()) == 0);
 }
 
-// 2.5.2 复制任务
+// 2.5.2 Overloading of =
 TEST_CASE("filtered_string_view operator==") {
 	auto pred = [](const char& c) { return c == '4' || c == '2'; };
 	auto fsv1 = fsv::filtered_string_view{"42 bro", pred};
@@ -121,22 +120,20 @@ TEST_CASE("filtered_string_view operator==") {
 	REQUIRE(static_cast<std::string>(fsv2) == "42");
 }
 
-// 2.5.3 =运算符的重载
+// Overloading of =
 TEST_CASE("Move assignment transfers state correctly", "[move_assignment]") {
 	auto pred = [](const char& c) { return c == '8' || c == '9'; };
 	fsv::filtered_string_view fsv1{"89 baby", pred};
-	auto fsv2 = fsv::filtered_string_view{}; // 默认构造
-
-	// 执行移动赋值
+	auto fsv2 = fsv::filtered_string_view{};
 	fsv2 = std::move(fsv1);
 
-	// 检查fs2是否正确接收了fs1的状态
+	// Check whether fs2 has correctly received the resource of fs1
 	REQUIRE((static_cast<int>(fsv1.size()) == 0 && fsv1.data() == nullptr));
 	REQUIRE((static_cast<int>(fsv2.size()) == 2 && fsv2.data() != nullptr));
 	REQUIRE(static_cast<std::string>(fsv2) == "89");
 }
 
-// 2.5.4 []运算符的重载
+// 2.5.4 Overloading of []
 TEST_CASE("filtered_string_view subscript access") {
 	auto pred = [](const char& c) { return c == '9' || c == '0' || c == ' '; };
 	auto fsv1 = fsv::filtered_string_view{"only 90s kids understand", pred};
@@ -145,27 +142,27 @@ TEST_CASE("filtered_string_view subscript access") {
 	REQUIRE(static_cast<std::string>(fsv1) == " 90  ");
 }
 
-// 2.5.5 类型转换运算符，允许 filtered_string_view 对象显式转换为 std::string
+// 2.5.5 Type conversion operators, allowing fsv to be explicitly converted to std::string
 TEST_CASE("String Type Conversion") {
 	auto sv = fsv::filtered_string_view("vizsla");
 	auto s = static_cast<std::string>(sv);
 
 	std::cout << std::boolalpha << (sv.data() == s.data()) << std::endl;
-	REQUIRE(sv.data() != s.data()); // sv.data() 和 s.data() 应指向不同的内存位置
+	REQUIRE(sv.data() != s.data()); // sv.data() and s.data() should point to different memory locations
 	REQUIRE(static_cast<std::string>(s) == "vizsla");
 }
 
 TEST_CASE("String Type Conversion2") {
 	auto s = std::string{"cat"};
 	auto pred = [](const char& c) { return c == 'a'; };
-	auto sv = fsv::filtered_string_view{s, pred}; // 使用谓词的构造函数
+	auto sv = fsv::filtered_string_view{s, pred};
 
-	auto str = static_cast<std::string>(sv); // 将 filtered_string_view 转换为 std::string
-	REQUIRE(str.data() != sv.data()); // str.data() 和 sv.data() 应指向不同的内存位置
-	REQUIRE(str == "a"); // 检查转换后的字符串是否为 "a"
+	auto str = static_cast<std::string>(sv); // Convert filtered_string_view to std::string
+	REQUIRE(str.data() != sv.data()); // str.data() and sv.data() should point to different memory locations
+	REQUIRE(str == "a");
 }
 
-// 2.6.1允许根据索引从过滤后的字符串中读取一个字符
+// 2.6.1 Return a character from the fsv according to the index
 TEST_CASE("filtered_string_view valid access") {
 	auto vowels = std::set<char>{'a', 'A', 'e', 'E', 'i', 'I', 'o', 'O', 'u', 'U'};
 	auto is_vowel = [&vowels](const char& c) { return vowels.contains(c); };
@@ -188,7 +185,7 @@ TEST_CASE("filtered_string_view invalid access") {
 	REQUIRE_THROWS_AS(sv.at(0), std::domain_error);
 }
 
-// 2.6.2 返回已过滤字符串的大小
+// 2.6.2 Return the size of the fsv
 TEST_CASE("filtered_string_view size of filtered strings") {
 	auto sv = fsv::filtered_string_view{"Maltese"};
 
@@ -203,7 +200,7 @@ TEST_CASE("filtered_string_view size of filtered strings2") {
 	REQUIRE(static_cast<std::string>(sv) == "ooo");
 }
 
-// 2.6.3 返回过滤后的字符串是否为空
+// 2.6.3 Return whether the fsv is empty
 TEST_CASE("Empty check for non-empty filtered string view1") {
 	auto sv = fsv::filtered_string_view("Australian Shepherd");
 	auto empty_sv = fsv::filtered_string_view{};
@@ -217,15 +214,15 @@ TEST_CASE("Empty check for empty filtered string view2") {
 	auto sv = fsv::filtered_string_view("Border Collie", [](const char& c) { return c == 'z'; });
 	std::cout << std::boolalpha << sv.empty();
 
-	REQUIRE(sv.empty()); // 应该返回 true，因为没有字符符合谓词，视图为空
+	REQUIRE(sv.empty()); // Should return true, since no characters match the predicate and the view is empty
 }
 
-// 2.6.4 返回底层指向底层数据的指针
+// 2.6.4 Return the pointer to the underlying data
 TEST_CASE("Data ignores filtering and outputs the entire string") {
 	auto s = "Sum 42";
 	auto sv = fsv::filtered_string_view{s, [](const char& /* c */) { return false; }};
 
-	REQUIRE(sv.empty()); // sv为空，但是sv的底层数据不变
+	REQUIRE(sv.empty()); // sv is empty, but the underlying data of sv remains unchanged
 	for (auto ptr = sv.data(); *ptr; ++ptr) {
 		std::cout << *ptr;
 	}
