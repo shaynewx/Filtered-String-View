@@ -13,51 +13,54 @@
 #include <utility>
 
 namespace fsv {
-	using filter = std::function<bool(const char&)>; // 定义别名为filter，是一个接受const
-	                                                 // char&参数并返回bool的函数的可调用对象
+	using filter = std::function<bool(const char&)>; // define the alias
+
 	class filtered_string_view {
 	 public:
-		static auto default_predicate(const char&) -> bool; // 默认的 静态成员 谓词函数，总是返回 true
-		// 构造函数
-		filtered_string_view(); // 2.4.1 默认构造函数
-		filtered_string_view(const std::string& s); // 2.4.2 隐式字符串构造函数
-		filtered_string_view(const std::string& str, filter predicate); // 2.4.3 带Predicate的字符串构造函数
-		filtered_string_view(const char* str); // 2.4.4 隐式以空字符结尾的字符串构造函数
-		filtered_string_view(const char* str, filter predicate); // 2.4.5 带有谓词的以空字符结尾的字符串构造函数
-		filtered_string_view(const filtered_string_view& other); // 2.4.6 拷贝构造函数
-		filtered_string_view(filtered_string_view&& other) noexcept; // 2.4.6 移动构造函数
-		~filtered_string_view() = default; // 2.5 默认析构函数
+		static auto default_predicate(const char&) -> bool; // The default predicate function, which always returns true
 
-		// 运算符重载
-		auto operator=(const filtered_string_view& other) -> filtered_string_view&; // 2.5.2 =运算符的重载
-		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 =运算符的重载
+		// Constructors
+		filtered_string_view(); // 2.4.1 Default Constructor
+		filtered_string_view(const std::string& s); // 2.4.2 Implicit String Constructor
+		filtered_string_view(const std::string& str, filter predicate); // 2.4.3 String Constructor with Predicate
+		filtered_string_view(const char* str); // 2.4.4 Implicit Null-Terminated String Constructor
+		filtered_string_view(const char* str, filter predicate); // 2.4.5 Null-Terminated String with Predicate
+		                                                         // Constructor
+		filtered_string_view(const filtered_string_view& other); // 2.4.6 Copy Constructor
+		filtered_string_view(filtered_string_view&& other) noexcept; // 2.4.6 Move Constructor
+		~filtered_string_view() = default; // 2.5 Destructor
 
-		auto operator[](int n) const -> const char&; // 2.5.4 []运算符的重载
-		explicit operator std::string() const; // 2.5.5  字符串类型转换运算符，允许将fsv显式转换为std::string
+		// 2.5 Member Operators
+		auto operator=(const filtered_string_view& other) -> filtered_string_view&; // 2.5.2 Overload of =运算符的重载
+		auto operator=(filtered_string_view&& other) noexcept -> filtered_string_view&; // 2.5.3 Overload of
+		                                                                                // =运算符的重载
 
-		// 成员函数
-		auto original_size() const -> std::size_t; // 返回初始字符串的长度
-		auto at(int index) -> const char&; // 2.6.1 允许根据索引从过滤后的字符串中读取一个字符
-		auto size() const -> std::size_t; // 2.6.2 返回已过滤字符串的大小
-		auto empty() const -> bool; // 2.6.3 返回过滤后的字符串是否为空
-		auto data() const -> const char*; // 2.6.4 返回指向底层数据的指针
-		auto predicate() const -> const filter&; // 2.6.5 访问用于进行过滤的谓词
+		auto operator[](int n) const -> const char&; // 2.5.4 Overload of []
+		explicit operator std::string() const; // 2.5.5 Overload of std::string
 
-		// 2.9 迭代器 Iterator
+		// 2.6 Member Functions
+		auto original_size() const -> std::size_t; // Return the length of the original string
+		auto at(int index) -> const char&; // 2.6.1 Return characters from the fsv according to the index
+		auto size() const -> std::size_t; // 2.6.2 Return the size of the fsv
+		auto empty() const -> bool; // 2.6.3 Returns whether the fsv is empty
+		auto data() const -> const char*; // 2.6.4 Return the pointer to the underlying data
+		auto predicate() const -> const filter&; // 2.6.5 Return the predicate used for filtering
+
+		// 2.9 Iterator
 		class const_iterator {
 		 public:
-			// 迭代器内部类型定义
+			// Type definition
 			using iterator_category = std::bidirectional_iterator_tag;
 			using value_type = char;
 			using difference_type = ptrdiff_t;
 			using pointer = void;
 			using reference = const char&;
 
-			// 迭代器内部构造函数
-			const_iterator(); // Default constructor
+			// Constructors of iterator
+			const_iterator();
 			const_iterator(const char* ptr, const filter& predicate);
 
-			// 运算符重载
+			// Member Operators of iterator
 			auto operator*() const -> reference;
 			auto operator++() -> const_iterator&;
 			auto operator++(int) -> const_iterator;
@@ -67,8 +70,8 @@ namespace fsv {
 			auto operator!=(const const_iterator& other) const -> bool;
 
 		 private:
-			const char* ptr_; // 当前字符指针
-			const filter* predicate_; // 过滤条件
+			const char* ptr_;
+			const filter* predicate_;
 		};
 
 		using iterator = const_iterator;

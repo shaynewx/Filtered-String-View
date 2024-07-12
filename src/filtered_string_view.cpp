@@ -372,10 +372,7 @@ namespace fsv {
 		return ptr_ != other.ptr_;
 	}
 
-	// 2.10
-	// 要使filtered_string_view能够用作双向范围
-	// 实现begin()、end()、cbegin()、cend()、rbegin()、rend()、crbegin()、crend()
-	// 此外，双向范围类型成员：iterator  const_iterator  reverse_iterator  const_reverse_iterator
+	// 2.10 begin()、end()、cbegin()、cend()、rbegin()、rend()、crbegin()、crend()
 	auto filtered_string_view::begin() const -> const_iterator {
 		const char* ptr = pointer_;
 		while (ptr != pointer_ + length_ && !predicate_(*ptr)) {
