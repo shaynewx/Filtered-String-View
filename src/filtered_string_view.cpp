@@ -218,11 +218,12 @@ namespace fsv {
 		const std::size_t tok_len = tok.size(); // The length of tok
 
 		while (current < end) {
-			const char* next = std::search(current, end, tok_start, tok_start + tok_len); // 查找分隔符的位置
+			// Find the position of the tok
+			const char* next = std::search(current, end, tok_start, tok_start + tok_len);
 
-			if (next == end) { // 如果没有找到分隔符（fsv不包含tok），说明当前段落是最后一部分
+			if (next == end) { // If fsv does not contain tok
 				if (current != end) {
-					// 创建一个新的以空字符结尾的字符串
+					// Create a new null-terminated fsv
 					std::size_t len = static_cast<size_t>(end - current);
 					char* temp = new char[len + 1];
 					std::strncpy(temp, current, len);
@@ -232,17 +233,17 @@ namespace fsv {
 				break;
 			}
 			else {
-				// 创建一个新的以空字符结尾的字符串
+				// Create a new null-terminated fsv
 				std::size_t len = static_cast<size_t>(next - current);
 				char* temp = new char[len + 1];
 				std::strncpy(temp, current, len);
 				temp[len] = '\0';
 				result.emplace_back(temp, fsv.predicate());
-				current = next + tok_len; // 更新 current，跳过当前找到的分隔符
+				current = next + tok_len; // Update current, skipping the currently found tok
 			}
 		}
 
-		// 特殊情况，如 fsv 以分隔符结尾
+		// If fsv ends with tok
 		if (current == end && end != start && *(end - tok_len) == *tok_start) {
 			result.emplace_back("", fsv.predicate());
 		}
@@ -250,26 +251,21 @@ namespace fsv {
 	}
 
 	// 2.8.3 substr
-	// 接收三个传入参数，fsv，pos和count
-	// 返回一个新的filtered_string_view，与fsv有同样的底层函数，但是呈现原字符串的“子字符串”视图
-	// 这个子字符串从pos开始，并且长度为rcount，rcount = count <= 0 ? size() - pos() : count
-	// 如果传入的 count 参数小于或等于 0，或者 count 大于从 pos 开始到字符串末尾的字符数，
-	// 则 rcount 会被计算为从 pos到原字符串末尾的长度（即 size() - pos()。
-	// 如果 count 大于 0 且小于或等于从 pos 开始到字符串末尾的字符数，
-	// rcount将直接等于 count 也即这个子字符串提供了 fsv的 [pos, pos + rcount] 的视图
-	// 这意味着视图将包括原字符串中从位置 pos开始的、连续 rcount 个满足谓词条件的字符
-	// 子字符串是有可能长度为0的，在这种情况下，返回的filtered_string_view是一个""
+	// Receives three parameters, fsv, pos and count
+	// Return a new filtered_string_view, which presents a "substring" view of the original string
+	// This substring starts at pos and has a length of rcount, rcount = count <= 0 ? size() - pos() : count
+	// filtered_string_view will be a "" if the length of substring is 0
 	auto substr(const filtered_string_view& fsv, int pos, int count) -> filtered_string_view {
 		const char* start = fsv.data();
-		const char* end = start + fsv.original_size(); // 使用底层字符串的长度
+		const char* end = start + fsv.original_size(); // Point to the end of fsv
 		const char* current = start;
 
-		// 确保 pos 不超过过滤后的字符串长度
+		// Make sure pos does not exceed the length of the filtered string
 		if (pos >= static_cast<int>(fsv.size())) {
 			return filtered_string_view("", fsv.predicate());
 		}
 
-		// 查找子字符串的起始位置
+		// Find the starting position of a substring
 		int filtered_pos = 0;
 		const char* substr_start = nullptr;
 
@@ -280,14 +276,14 @@ namespace fsv {
 			++current;
 		}
 
-		// 确保找到起始位置
+		// Make sure you find your starting position
 		if (current == end) {
 			return filtered_string_view("", fsv.predicate());
 		}
 
 		substr_start = current;
 
-		// 计算 rcount，并查找子字符串的结束位置
+		// Calculate rcount and find the end position of the substring
 		int filtered_count = 0;
 		const char* substr_end = nullptr;
 
@@ -300,7 +296,7 @@ namespace fsv {
 
 		substr_end = current;
 
-		// 创建一个新的以空字符结尾的字符串
+		// Creates a new null-terminated fsv
 		std::size_t len = static_cast<size_t>(substr_end - substr_start);
 		char* temp = new char[len + 1];
 		std::strncpy(temp, substr_start, len);
@@ -309,19 +305,8 @@ namespace fsv {
 		return filtered_string_view(temp, fsv.predicate());
 	}
 
-	// 2.9 迭代器 Iterator
-	// 允许调用者按照字符逐个迭代过滤出的单词，仅仅需要实现一个双向迭代器，且它应该支持双向迭代器支持的所有操作符
-	// 这个迭代器也是个常量迭代器，这意味这即使使用非常量的filtered_string_view，也不会改变underlying filtered_string
-	// 迭代器的 value_type 应为 char
-	// 迭代器的 reference 类型应该是 const char&，表示迭代器返回的是字符的常量引用。
-	// 迭代器的 pointer 类型应为 void。这通常表示迭代器不提供直接的指针访问功能。
-	// 迭代器应该有一个 public default constructor
-	// 迭代器不应允许对底层的字符串数据进行修改
-	// 您还可以定义私有的、特定于实现的构造函数
-	// 您可以假设任何改变 filtered_string_view 的方法都会使任何迭代器无效
-	// filtered_string_view 应该有一个 member type 为 iterator = const_iterator
-
-	// 迭代器的初始实现
+	// 2.9 Iterator
+	// Constructors of iterator
 	filtered_string_view::const_iterator::const_iterator()
 	: ptr_(nullptr)
 	, predicate_(nullptr) {}
@@ -334,7 +319,7 @@ namespace fsv {
 		}
 	}
 
-	// 运算符重载
+	// Member Operators of iterator
 	auto filtered_string_view::const_iterator::operator*() const -> reference {
 		return *ptr_;
 	}
@@ -342,7 +327,7 @@ namespace fsv {
 	auto filtered_string_view::const_iterator::operator++() -> const_iterator& {
 		do {
 			++ptr_;
-		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // 跳过所有不符合谓词条件的字符
+		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // Skip all characters that do not match the predicate
 		return *this;
 	}
 
@@ -355,7 +340,7 @@ namespace fsv {
 	auto filtered_string_view::const_iterator::operator--() -> const_iterator& {
 		do {
 			--ptr_;
-		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // 跳过所有不符合谓词条件的字符
+		} while (ptr_ && *ptr_ && !(*predicate_)(*ptr_)); // Skip all characters that do not match the predicate
 		return *this;
 	}
 

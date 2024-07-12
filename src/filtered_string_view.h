@@ -93,8 +93,8 @@ namespace fsv {
 
 	 private:
 		const char* pointer_; // A constant pointer to the underlying data
-		std::size_t length_; // the length of the string
-		filter predicate_; // filter
+		std::size_t length_; // The length of the string
+		filter predicate_; // Filter
 		static const char default_char; // Default character for invalid index cases
 	};
 
