@@ -13,9 +13,6 @@ The Filtered String View project provides a flexible and efficient way to handle
 
 
 ## Installation
-
-To include the Word Ladder library in your project:
-
 1. Clone the repository:
     ```sh
     git clone git@github.com:shaynewx/Filtered-String-View.git
