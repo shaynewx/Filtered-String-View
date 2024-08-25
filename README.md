@@ -87,6 +87,23 @@ std::cout << std::boolalpha
 // Output: true true false false true
 ```
 
+## Testing
+Unit tests are provided in `src/filtered_string_view.test.cpp` to ensure the correctness and efficiency of the library. To run the tests:
+
+1. Configure your project with CMake in the root directory:
+    ```sh
+    cmake -B build
+    ```
+2. Build the project:
+    ```sh
+    cd build
+    make
+    ```
+3. Run the tests:
+    ```sh
+    ./filtered_string_view_test
+    ```
+
 
 ## Contribution
 
