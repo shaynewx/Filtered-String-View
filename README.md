@@ -55,9 +55,9 @@ Here is a simple example of how to use the filtered_string_view:
 #include "filtered_string_view.h"
 
 int main() {
-std::string data = "Example Data";
-fsv::filter my_filter = [](const char& c) { return c != ' '; };
-fsv::filtered_string_view fsv(data, my_filter);
+    std::string data = "Example Data";
+    fsv::filter my_filter = [](const char& c) { return c != ' '; };
+    fsv::filtered_string_view fsv(data, my_filter);
 
     std::cout << "Filtered view: " << static_cast<std::string>(fsv) << std::endl;
     return 0;
