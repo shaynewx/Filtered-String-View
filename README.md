@@ -17,16 +17,11 @@ The Filtered String View project provides a flexible and efficient way to handle
     ```sh
     git clone git@github.com:shaynewx/Filtered-String-View.git
     ```
-2. Navigate to the project directory:
-    ```sh
-    cd filtered_string_view
-    ```
+2. Include the library files from the `src` directory in your project:
+    - `filtered_string_view.h`
+    - `filtered_string_view.cpp`
 
-3. Build the project using CMake.
-    ```sh
-    cmake -B build
-    cd build 
-    ```
+3. Compile your project using a C++ compiler that supports C++17 or later.
 
 
 ## Usage
