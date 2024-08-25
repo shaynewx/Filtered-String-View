@@ -1,6 +1,6 @@
 # Filtered String View Library
 
-A C++ library for generating word ladders, demonstrating the use of C++ Standard Library containers and algorithms.
+The Filtered String View provides a C++ implementation for viewing strings through a filter without modifying the underlying string. It allows dynamic filtering based on provided predicates, making it useful for scenarios where non-destructive, conditional access to string data is required.
 
 ## Overview
 The Filtered String View project provides a flexible and efficient way to handle string views that can be dynamically filtered based on custom criteria. This C++ library allows users to apply function-based filters to control the visibility and access of characters in the string, making it ideal for handling data where specific filtering of content is needed.
@@ -10,6 +10,32 @@ The Filtered String View project provides a flexible and efficient way to handle
 - **Standard Compatibility**: Uses modern C++ features, fully compatible with C++17 standards and forward.
 - **Efficient Memory Use**: Operates directly on the original string without copying, ensuring efficient memory usage.
 - **Iterator Support**: Includes bidirectional iterators that respect the applied filters, compliant with C++ bidirectional iterator requirements.
+
+## Detailed Functionality
+### Constructors
+- **Default Constructor**: Initializes an empty view.
+- **Implicit String Constructor**: Takes a standard string and views it without any filters.
+- **String Constructor with Predicate**: Allows initialization from a string with a specific filtering predicate.
+- **Implicit Null-Terminated String Constructor**: Views a C-style string without filters.
+- **Null-Terminated String with Predicate Constructor**: Views a C-style string with a specified filter.
+- **Copy Constructor**: Supports copying from another `filtered_string_view`.
+- **Move Constructor**: Supports efficient move operations.
+
+### Member Functions
+- **`original_size()`**: Returns the length of the original unfiltered string.
+- **`size()`**: Returns the size of the filtered view.
+- **`empty()`**: Checks if the filtered view is empty.
+- **`data()`**: Provides access to the underlying character data.
+- **`predicate()`**: Returns the currently applied filter predicate.
+
+### Iterator Functionality
+- **Bidirectional Iterators**: Allows iteration over the filtered view forwards and backwards.
+- **Range-based Iteration**: Supports `begin()`, `end()`, `rbegin()`, and `rend()` for range-based loops.
+
+### Non-Member Functions
+- **Relational Operators**: Defines equality and three-way comparison for filtered views.
+- **Stream Output Operator**: Allows printing the filtered view directly to an output stream.
+- **Utility Functions**: Includes functions like `compose` to combine multiple filters, `split` to divide the view based on a delimiter, and `substr` to get a substring view.
 
 
 ## Installation
