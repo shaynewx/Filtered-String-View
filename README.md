@@ -7,7 +7,7 @@ The Filtered String View project provides a flexible and efficient way to handle
 
 ## Features
 - **Dynamic Filtering**: Apply customizable filter functions to string views.
-- **Standard Compatibility**: Uses modern C++ features, fully compatible with C++11 standards and forward.
+- **Standard Compatibility**: Uses modern C++ features, fully compatible with C++17 standards and forward.
 - **Efficient Memory Use**: Operates directly on the original string without copying, ensuring efficient memory usage.
 - **Iterator Support**: Includes bidirectional iterators that respect the applied filters, compliant with C++ bidirectional iterator requirements.
 
@@ -22,7 +22,6 @@ The Filtered String View project provides a flexible and efficient way to handle
     - `filtered_string_view.cpp`
 
 3. Compile your project using a C++ compiler that supports C++17 or later.
-
 
 ## Usage
 Here is a simple example of how to use the filtered_string_view:
@@ -39,9 +38,28 @@ fsv::filtered_string_view fsv(data, my_filter);
 }
 ```
 
+## Example Operations
+### Equality and Comparison:
+```c++
+auto const lo = fsv::filtered_string_view{"aaa"};
+auto const hi = fsv::filtered_string_view{"zzz"};
 
+std::cout << std::boolalpha 
+          << (lo == hi) << ' '
+          << (lo != hi) << std::endl;
+// Output: false true
+```
 
-
+### Relational Comparisons Using Spaceship Operator:
+```c++
+std::cout << std::boolalpha
+<< (lo < hi) << ' '
+<< (lo <= hi) << ' '
+<< (lo > hi) << ' '
+<< (lo >= hi) << ' '
+<< (lo <=> hi == std::strong_ordering::less) << std::endl;
+// Output: true true false false true
+```
 
 
 ## Contribution
